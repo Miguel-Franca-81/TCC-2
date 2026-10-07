@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEXUS • Leitor de Contas</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050816;--card:#0b1230cc;--ink:#e6f1ff;--mut:#8aa0c8;--c1:#00e5ff;--c2:#b455ff;--ok:#2dffa0;--bad:#ff4d6d;--line:#00e5ff44;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 Rajdhani,system-ui,sans-serif;min-height:100vh;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px),radial-gradient(circle at 80% 0,#b455ff33,transparent 50%);background-size:44px 44px,44px 44px,100% 100%;background-attachment:fixed}
+h1,h2,h3,.logo{font-family:Orbitron,system-ui,sans-serif;letter-spacing:.06em}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);background:#050816dd;position:sticky;top:env(safe-area-inset-top,0px);backdrop-filter:blur(8px);z-index:5}
+.logo{font-weight:700;font-size:20px;color:var(--c1);text-shadow:0 0 14px var(--c1)}
+nav{display:flex;gap:8px;flex-wrap:wrap}
+nav button,.btn{font:600 15px Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:var(--ink);background:transparent;border:1px solid var(--line);padding:8px 16px;cursor:pointer;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:.2s}
+nav button:hover,nav button.on,.btn:hover{background:var(--c1);color:#001018;box-shadow:0 0 18px var(--c1)}
+.btn.alt{border-color:var(--c2)}.btn.alt:hover{background:var(--c2);box-shadow:0 0 18px var(--c2)}
+main{max-width:980px;margin:0 auto;padding:24px 16px 60px}
+section{display:none}section.on{display:block;animation:in .4s}
+@keyframes in{from{opacity:0;transform:translateY(10px)}}
+h1{font-size:clamp(24px,5vw,38px);margin:.2em 0;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mut);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);padding:20px;margin-bottom:18px;box-shadow:0 0 30px #00e5ff14,inset 0 0 40px #00e5ff08;position:relative}
+.card:before{content:"";position:absolute;left:-1px;top:-1px;width:18px;height:18px;border-left:2px solid var(--c1);border-top:2px solid var(--c1)}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tabs .btn.on{background:var(--c1);color:#001018}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+label{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut)}
+input,select,textarea{width:100%;margin-top:4px;background:#020510;border:1px solid var(--line);color:var(--ink);padding:10px;font:inherit;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 12px #00e5ff55}
+.row{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+.res{border-left:4px solid var(--c1);padding:12px 16px;margin-top:16px;background:#020510}
+.res.ok{border-color:var(--ok)}.res.bad{border-color:var(--bad)}
+.res b.big{font:700 22px Orbitron,sans-serif}
+.ok b.big{color:var(--ok)}.bad b.big{color:var(--bad)}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font:500 12px Orbitron,sans-serif;color:var(--c1)}
+td.n{text-align:right;white-space:nowrap;font-weight:600}
+.tw{overflow-x:auto}
+.exp{color:var(--mut);font-size:15px}
+.msg{margin-top:12px;min-height:24px}
+.msg.e{color:var(--bad)}.msg.s{color:var(--ok)}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--c2);color:var(--c2);padding:0 8px;margin-left:6px}
+.item{border:1px solid var(--line);padding:12px;margin-top:10px;background:#020510}
+.item small{color:var(--mut)}
+.hide{display:none}
+.scan{border-color:var(--c2)}
+.drop{border:2px dashed var(--line);padding:18px;text-align:center;color:var(--mut)}
+.drop.over{border-color:var(--c1);background:#00e5ff10}
+#pv{max-width:100%;max-height:260px;margin-top:12px;border:1px solid var(--line)}
+.ld{display:inline-block;width:14px;height:14px;border:2px solid var(--c1);border-top-color:transparent;border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes sp{to{transform:rotate(360deg)}}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">◢ NEXUS//CONTAS</div>
+  <nav>
+    <button data-p="leitor" class="on">Leitor</button>
+    <button data-p="login">Login</button>
+    <button data-p="reclama">Reclamações</button>
+  </nav>
+  <span id="who" class="tag">visitante</span>
+</header>
+<main>
+
+<section id="leitor" class="on">
+  <h1>Leitor de Contas</h1>
+  <p class="sub">Digite os valores da sua conta. O sistema soma cada item, compara com o total impresso e explica cada parte.</p>
+  <div class="card scan">
+    <h3>📷 Escanear ou abrir conta</h3>
+    <div class="drop" id="drop">
+      <div class="row" style="justify-content:center;margin-top:0">
+        <button class="btn hide" id="bcam">📷 Escanear com a câmera</button>
+        <button class="btn alt" id="bfile">📂 Abrir arquivo</button>
+      </div>
+      <p class="exp" id="dh">Escolha uma foto ou imagem da conta (JPG, PNG, WEBP). No computador você também pode arrastar o arquivo para cá.</p>
+      <input type="file" id="icam" accept="image/*" capture="environment" class="hide">
+      <input type="file" id="ifile" accept="image/*" class="hide">
+      <img id="pv" class="hide" alt="Prévia da conta">
+    </div>
+    <div class="msg" id="sm"></div>
+  </div>
+  <div class="card">
+    <div class="tabs"><button class="btn on" data-t="agua">💧 Água</button><button class="btn" data-t="luz">⚡ Luz</button></div>
+    <div id="f"></div>
+    <div class="row"><button class="btn" id="calc">Analisar conta</button><button class="btn alt" id="ex">Preencher exemplo</button></div>
+    <div id="out"></div>
+  </div>
+</section>
+
+<section id="login">
+  <h1>Acesso</h1>
+  <p class="sub">Crie uma conta ou entre. Os dados são salvos no banco de dados; a senha é guardada apenas como hash SHA-256 com salt.</p>
+  <div class="card" style="max-width:460px">
+    <div class="tabs"><button class="btn on" data-m="in">Entrar</button><button class="btn" data-m="up">Cadastrar</button></div>
+    <label>Usuário<input id="u" autocomplete="username"></label><br>
+    <label id="lemail" class="hide">E-mail<input id="em" type="email"></label>
+    <label>Senha<input id="pw" type="password" autocomplete="current-password"></label>
+    <div class="row"><button class="btn" id="go">Entrar</button><button class="btn alt hide" id="out2">Sair</button></div>
+    <div class="msg" id="lm"></div>
+  </div>
+</section>
+
+<section id="reclama">
+  <h1>Reclamações</h1>
+  <p class="sub">Registre problemas na sua conta ou no serviço. É necessário estar logado.</p>
+  <div class="card">
+    <div class="grid">
+      <label>Tipo<select id="rt"><option>Água</option><option>Luz</option></select></label>
+      <label>Assunto<select id="ra"><option>Valor incorreto</option><option>Cobrança duplicada</option><option>Falta de serviço</option><option>Leitura errada</option><option>Outro</option></select></label>
+    </div><br>
+    <label>Descrição<textarea id="rd" rows="4" maxlength="600"></textarea></label>
+    <div class="row"><button class="btn" id="rs">Enviar reclamação</button></div>
+    <div class="msg" id="rm"></div>
+  </div>
+  <div class="card"><h3>Minhas reclamações</h3><div id="rl"><span class="exp">Faça login para ver.</span></div></div>
+</section>
+
+</main>
+<footer>TCC de Informática • protótipo educacional • valores são digitados manualmente</footer>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const R=v=>'R$ '+v.toFixed(2).replace('.',',');
+let db=null, me=null, tipo='agua', mode='in';
+
+// ---- navegação
+function go(p){$$('section').forEach(s=>s.classList.toggle('on',s.id===p));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));if(p==='reclama')loadR()}
+$$('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
+
+// ---- armazenamento: banco (db) com reserva local
+const store={
+ async get(c,id){try{if(db){const s=await db.doc(c+'/'+id).get();return s.exists?s.data():null}}catch(e){}
+  try{return JSON.parse(localStorage.getItem(c+id))}catch(e){return null}},
+ async set(c,id,d){try{if(db){await db.doc(c+'/'+id).set(d);return}}catch(e){}
+  try{localStorage.setItem(c+id,JSON.stringify(d))}catch(e){}},
+ async list(c){try{if(db){const s=await db.collection(c).get();return s.docs.map(d=>d.data())}}catch(e){}
+  const o=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith(c))o.push(JSON.parse(localStorage.getItem(k)))}}catch(e){}return o}
+};
+(async()=>{try{db=await claude.use('db')}catch(e){}})();
+
+// ---- leitor de contas
+const MOD={
+agua:{
+ campos:[['m3','Consumo (m³)'],['tarifa','Tarifa água (R$/m³)'],['esgoto','Esgoto (% da água)'],['fixa','Taxa fixa / disponibilidade (R$)'],['outros','Outros / multas (R$)'],['total','TOTAL impresso na conta (R$)']],
+ ex:{m3:12,tarifa:6.5,esgoto:80,fixa:4.2,outros:0,total:0},
+ itens(v){const a=v.m3*v.tarifa,e=a*v.esgoto/100;return[
+  ['Água consumida',a,`Volume lido no hidrômetro (${v.m3} m³) × tarifa. A tarifa costuma subir por faixa: quanto mais você consome, mais caro o m³.`],
+  ['Esgoto',e,`Coleta e tratamento, cobrado como % do valor da água (${v.esgoto}%).`],
+  ['Taxa fixa',v.fixa,'Valor mínimo mensal pela disponibilidade da rede, mesmo com consumo baixo.'],
+  ['Outros / multas',v.outros,'Juros por atraso, religação, parcelamentos ou serviços avulsos.']]}},
+luz:{
+ campos:[['kwh','Consumo (kWh)'],['tarifa','Tarifa (R$/kWh, sem impostos)'],['band','Bandeira tarifária (R$ por kWh)'],['imp','Impostos ICMS+PIS/COFINS (%)'],['cip','Iluminação pública / CIP (R$)'],['total','TOTAL impresso na conta (R$)']],
+ ex:{kwh:180,tarifa:0.72,band:0.0,imp:25,cip:12,total:0},
+ itens(v){const en=v.kwh*v.tarifa,bd=v.kwh*v.band,sub=en+bd,im=sub*v.imp/100;return[
+  ['Energia elétrica',en,`${v.kwh} kWh lidos no medidor × tarifa da distribuidora.`],
+  ['Bandeira tarifária',bd,'Adicional que reflete o custo de geração: verde (R$ 0), amarela ou vermelha.'],
+  ['Impostos (ICMS, PIS/COFINS)',im,`Cerca de ${v.imp}% sobre o valor da energia, repassados ao governo.`],
+  ['Iluminação pública (CIP)',v.cip,'Contribuição municipal para manter a iluminação das ruas.']]}}
+};
+function form(){const m=MOD[tipo];$('#f').innerHTML='<div class="grid">'+m.campos.map(([k,l])=>`<label>${l}<input id="c_${k}" type="number" step="0.01" min="0"></label>`).join('')+'</div>';$('#out').innerHTML=''}
+$$('[data-t]').forEach(b=>b.onclick=()=>{tipo=b.dataset.t;$$('[data-t]').forEach(x=>x.classList.toggle('on',x===b));form()});
+$('#ex').onclick=()=>{const m=MOD[tipo];Object.entries(m.ex).forEach(([k,v])=>$('#c_'+k).value=v);$('#out').innerHTML='<div class="res">Exemplo carregado. Informe o total impresso (ou use o botão Analisar para ver a soma correta).</div>'};
+function analisar(){
+ const m=MOD[tipo],v={};m.campos.forEach(([k])=>v[k]=parseFloat($('#c_'+k).value)||0);
+ const it=m.itens(v),soma=it.reduce((s,i)=>s+i[1],0),dif=v.total-soma,ok=Math.abs(dif)<0.02;
+ let h=`<div class="tw"><table><tr><th>Item</th><th>Valor</th><th>O que significa</th></tr>${it.map(i=>`<tr><td>${i[0]}</td><td class="n">${R(i[1])}</td><td class="exp">${i[2]}</td></tr>`).join('')}<tr><td><b>Soma calculada</b></td><td class="n"><b>${R(soma)}</b></td><td></td></tr></table></div>`;
+ if(!v.total)h+=`<div class="res"><b class="big">Total calculado: ${R(soma)}</b><br>Informe o total impresso para comparar.</div>`;
+ else h+=ok?`<div class="res ok"><b class="big">✔ SOMATÓRIA CORRETA</b><br>O total impresso (${R(v.total)}) confere com a soma dos itens.</div>`
+  :`<div class="res bad"><b class="big">✖ DIVERGÊNCIA DE ${R(Math.abs(dif))}</b><br>Impresso: ${R(v.total)} • Calculado: ${R(soma)}. ${dif>0?'Você pode estar sendo cobrado a mais.':'A conta está menor que a soma dos itens.'} Verifique os dados ou registre uma reclamação.<div class="row"><button class="btn alt" onclick="go('reclama')">Reclamar</button></div></div>`;
+ $('#out').innerHTML=h}
+$('#calc').onclick=analisar;
+form();
+
+// ---- escanear / abrir arquivo (leitura da conta por IA)
+if(matchMedia('(pointer:coarse)').matches)$('#bcam').classList.remove('hide');
+$('#bcam').onclick=()=>$('#icam').click();
+$('#bfile').onclick=()=>$('#ifile').click();
+$('#icam').onchange=$('#ifile').onchange=e=>{const f=e.target.files[0];e.target.value='';f&&lerArquivo(f)};
+['dragover','dragenter'].forEach(ev=>$('#drop').addEventListener(ev,e=>{e.preventDefault();$('#drop').classList.add('over')}));
+['dragleave','drop'].forEach(ev=>$('#drop').addEventListener(ev,e=>{e.preventDefault();$('#drop').classList.remove('over')}));
+$('#drop').addEventListener('drop',e=>{const f=e.dataTransfer.files[0];f&&lerArquivo(f)});
+function reduzir(f){return new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(f);
+ im.onload=()=>{const k=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+  c.toBlob(b=>b?ok({blob:b,url:u}):no(),'image/jpeg',.85)};im.onerror=no;im.src=u})}
+async function lerArquivo(f){
+ const m=$('#sm');
+ if(!f.type.startsWith('image/'))return msg(m,'Formato não suportado. Use uma imagem (JPG, PNG, WEBP).','e');
+ let r;try{r=await reduzir(f)}catch(e){return msg(m,'Não consegui abrir essa imagem.','e')}
+ $('#pv').src=r.url;$('#pv').classList.remove('hide');
+ let sample=null;try{sample=await claude.use('sample')}catch(e){}
+ if(!sample)return msg(m,'A leitura automática não está disponível aqui. Preencha os campos manualmente abaixo.','e');
+ m.className='msg';m.innerHTML='<span class="ld"></span>Lendo a conta...';
+ const prompt=`Você lê contas brasileiras de água ou luz a partir da imagem. Responda SOMENTE um JSON, sem texto extra, no formato:
+{"tipo":"agua"|"luz"|"desconhecido","total":numero (valor total a pagar),"itens":[{"nome":string,"valor":numero}],
+"agua":{"m3":consumo em m3,"tarifa":valor da agua dividido por m3,"esgoto":percentual do esgoto sobre a agua,"fixa":taxa fixa,"outros":outros/multas},
+"luz":{"kwh":consumo,"tarifa":tarifa por kWh sem impostos,"band":adicional da bandeira por kWh,"imp":percentual de impostos ICMS+PIS/COFINS,"cip":iluminacao publica em reais},
+"obs":"1 frase sobre o que foi lido ou o que faltou"}
+Use ponto decimal, 0 para o que não existir, e preencha só o bloco do tipo detectado. Se a imagem não for uma conta, use tipo "desconhecido".`;
+ try{
+  const d=await sample.json([{role:'user',content:prompt}],{images:[r.blob],cache:false});
+  if(!d||d.tipo==='desconhecido'||!d[d.tipo])return msg(m,'Não reconheci uma conta de água ou luz nessa imagem. Tente uma foto mais nítida e inteira.','e');
+  $(`[data-t="${d.tipo}"]`).click();
+  const v=d[d.tipo];v.total=d.total;
+  MOD[d.tipo].campos.forEach(([k])=>{const n=parseFloat(v[k]);$('#c_'+k).value=isNaN(n)?0:n});
+  msg(m,'✔ Conta lida. '+(d.obs||'')+' Confira os campos preenchidos e ajuste se algo estiver errado.','s');
+  analisar();$('#out').scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(e){msg(m,e&&e.code==='not_granted'?'Permissão negada para ler a imagem. Preencha manualmente.':'Falha ao ler a conta. Tente novamente ou preencha manualmente.','e')}
+}
+
+// ---- login
+async function hash(s,salt){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+const salt=()=>[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,'0')).join('');
+const msg=(el,t,c)=>{el.textContent=t;el.className='msg '+(c||'')};
+$$('[data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;$$('[data-m]').forEach(x=>x.classList.toggle('on',x===b));$('#lemail').classList.toggle('hide',mode==='in');$('#go').textContent=mode==='in'?'Entrar':'Cadastrar'});
+function ui(){$('#who').textContent=me?'👤 '+me:'visitante';$('#out2').classList.toggle('hide',!me)}
+$('#go').onclick=async()=>{
+ const u=$('#u').value.trim().toLowerCase(),p=$('#pw').value,m=$('#lm');
+ if(!/^[a-z0-9_.-]{3,20}$/.test(u))return msg(m,'Usuário: 3 a 20 letras, números, _ . -','e');
+ if(p.length<6)return msg(m,'A senha precisa de 6+ caracteres.','e');
+ const ex=await store.get('usuarios',u);
+ if(mode==='up'){
+  if(ex)return msg(m,'Usuário já existe.','e');
+  const s=salt();await store.set('usuarios',u,{usuario:u,email:$('#em').value.trim(),salt:s,hash:await hash(p,s),criado:new Date().toISOString()});
+  me=u;ui();msg(m,'Conta criada e salva no banco de dados. Você está logado!','s');
+ }else{
+  if(!ex||ex.hash!==await hash(p,ex.salt))return msg(m,'Usuário ou senha inválidos.','e');
+  me=u;ui();msg(m,'Acesso liberado. Bem-vindo, '+u+'!','s');
+ }};
+$('#out2').onclick=()=>{me=null;ui();msg($('#lm'),'Sessão encerrada.','')};
+
+// ---- reclamações
+async function loadR(){
+ if(!me){$('#rl').innerHTML='<span class="exp">Faça login para ver.</span>';return}
+ const l=(await store.list('reclamacoes')).filter(r=>r.usuario===me).sort((a,b)=>b.data.localeCompare(a.data));
+ $('#rl').innerHTML=l.length?l.map(r=>`<div class="item"><b></b><span class="tag"></span><br><span class="d"></span><br><small></small></div>`).join(''):'<span class="exp">Nenhuma reclamação ainda.</span>';
+ $$('#rl .item').forEach((e,i)=>{const r=l[i];e.querySelector('b').textContent=r.assunto;e.querySelector('.tag').textContent=r.tipo;e.querySelector('.d').textContent=r.texto;e.querySelector('small').textContent=new Date(r.data).toLocaleString('pt-BR')+' • protocolo '+r.id})}
+$('#rs').onclick=async()=>{
+ const m=$('#rm'),t=$('#rd').value.trim();
+ if(!me)return msg(m,'Faça login antes de enviar.','e');
+ if(t.length<10)return msg(m,'Descreva o problema (mín. 10 caracteres).','e');
+ const id=Date.now().toString(36).toUpperCase();
+ await store.set('reclamacoes',id,{id,usuario:me,tipo:$('#rt').value,assunto:$('#ra').value,texto:t,data:new Date().toISOString()});
+ $('#rd').value='';msg(m,'Reclamação registrada. Protocolo '+id,'s');loadR()};
+</script>
+</body>
+</html>
