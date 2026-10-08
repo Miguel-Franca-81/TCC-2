@@ -70,7 +70,18 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
   <span id="who" class="tag">visitante</span>
 </header>
 <main>
-
+<section id="login">
+  <h1>Acesso</h1>
+  <p class="sub">Crie uma conta ou entre. Os dados são salvos no banco de dados; a senha é guardada apenas como hash SHA-256 com salt.</p>
+  <div class="card" style="max-width:460px">
+    <div class="tabs"><button class="btn on" data-m="in">Entrar</button><button class="btn" data-m="up">Cadastrar</button></div>
+    <label>Usuário<input id="u" autocomplete="username"></label><br>
+    <label id="lemail" class="hide">E-mail<input id="em" type="email"></label>
+    <label>Senha<input id="pw" type="password" autocomplete="current-password"></label>
+    <div class="row"><button class="btn" id="go">Entrar</button><button class="btn alt hide" id="out2">Sair</button></div>
+    <div class="msg" id="lm"></div>
+  </div>
+</section>
 <section id="leitor" class="on">
   <h1>Leitor de Contas</h1>
   <p class="sub">Digite os valores da sua conta. O sistema soma cada item, compara com o total impresso e explica cada parte.</p>
@@ -96,18 +107,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
   </div>
 </section>
 
-<section id="login">
-  <h1>Acesso</h1>
-  <p class="sub">Crie uma conta ou entre. Os dados são salvos no banco de dados; a senha é guardada apenas como hash SHA-256 com salt.</p>
-  <div class="card" style="max-width:460px">
-    <div class="tabs"><button class="btn on" data-m="in">Entrar</button><button class="btn" data-m="up">Cadastrar</button></div>
-    <label>Usuário<input id="u" autocomplete="username"></label><br>
-    <label id="lemail" class="hide">E-mail<input id="em" type="email"></label>
-    <label>Senha<input id="pw" type="password" autocomplete="current-password"></label>
-    <div class="row"><button class="btn" id="go">Entrar</button><button class="btn alt hide" id="out2">Sair</button></div>
-    <div class="msg" id="lm"></div>
-  </div>
-</section>
+
 
 <section id="reclama">
   <h1>Reclamações</h1>
