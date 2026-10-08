@@ -6,12 +6,12 @@
 <title>NEXUS • Leitor de Contas</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#050816;--card:#0b1230cc;--ink:#e6f1ff;--mut:#8aa0c8;--c1:#00e5ff;--c2:#b455ff;--ok:#2dffa0;--bad:#ff4d6d;--line:#00e5ff44;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#050816;--card:#0b1230cc;--ink:#e6f1ff;--mut:#8aa0c8;--c1:#00e5ff;--c2:#b455ff;--ok:#2dffa0;--bad:#ff4d6d;--line:#00e5ff44;--deep:#020510;--hd:#050816dd;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 Rajdhani,system-ui,sans-serif;min-height:100vh;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px),radial-gradient(circle at 80% 0,#b455ff33,transparent 50%);background-size:44px 44px,44px 44px,100% 100%;background-attachment:fixed}
+body{transition:background-color .5s,color .5s;margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.5 Rajdhani,system-ui,sans-serif;min-height:100vh;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px),radial-gradient(circle at 80% 0,#b455ff33,transparent 50%);background-size:44px 44px,44px 44px,100% 100%;background-attachment:fixed}
 h1,h2,h3,.logo{font-family:Orbitron,system-ui,sans-serif;letter-spacing:.06em}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);background:#050816dd;position:sticky;top:env(safe-area-inset-top,0px);backdrop-filter:blur(8px);z-index:5}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--hd);position:sticky;top:env(safe-area-inset-top,0px);backdrop-filter:blur(8px);z-index:5}
 .logo{font-weight:700;font-size:20px;color:var(--c1);text-shadow:0 0 14px var(--c1)}
 nav{display:flex;gap:8px;flex-wrap:wrap}
 nav button,.btn{font:600 15px Rajdhani,sans-serif;text-transform:uppercase;letter-spacing:.1em;color:var(--ink);background:transparent;border:1px solid var(--line);padding:8px 16px;cursor:pointer;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:.2s}
@@ -28,10 +28,10 @@ h1{font-size:clamp(24px,5vw,38px);margin:.2em 0;background:linear-gradient(90deg
 .tabs .btn.on{background:var(--c1);color:#001018}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
 label{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut)}
-input,select,textarea{width:100%;margin-top:4px;background:#020510;border:1px solid var(--line);color:var(--ink);padding:10px;font:inherit;outline:none}
+input,select,textarea{width:100%;margin-top:4px;background:var(--deep);border:1px solid var(--line);color:var(--ink);padding:10px;font:inherit;outline:none}
 input:focus,select:focus,textarea:focus{border-color:var(--c1);box-shadow:0 0 12px #00e5ff55}
 .row{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
-.res{border-left:4px solid var(--c1);padding:12px 16px;margin-top:16px;background:#020510}
+.res{border-left:4px solid var(--c1);padding:12px 16px;margin-top:16px;background:var(--deep)}
 .res.ok{border-color:var(--ok)}.res.bad{border-color:var(--bad)}
 .res b.big{font:700 22px Orbitron,sans-serif}
 .ok b.big{color:var(--ok)}.bad b.big{color:var(--bad)}
@@ -44,9 +44,12 @@ td.n{text-align:right;white-space:nowrap;font-weight:600}
 .msg{margin-top:12px;min-height:24px}
 .msg.e{color:var(--bad)}.msg.s{color:var(--ok)}
 .tag{display:inline-block;font-size:12px;border:1px solid var(--c2);color:var(--c2);padding:0 8px;margin-left:6px}
-.item{border:1px solid var(--line);padding:12px;margin-top:10px;background:#020510}
+.item{border:1px solid var(--line);padding:12px;margin-top:10px;background:var(--deep)}
 .item small{color:var(--mut)}
 .hide{display:none}
+body.luz{--bg:#ffd600;--ink:#1a1300;--mut:#5a4700;--card:#fff0a0cc;--line:#1a130066;--deep:#fffbe0;--hd:#ffd600ee;--c1:#b85c00;--c2:#6a00c4;--ok:#0a7a3c;--bad:#c40024;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px),radial-gradient(circle at 80% 0,#ffffff88,transparent 50%)}
+body.luz .logo{text-shadow:none}
+body.luz nav button:hover,body.luz nav button.on,body.luz .btn:hover,body.luz .tabs .btn.on{color:#fff}
 .scan{border-color:var(--c2)}
 .drop{border:2px dashed var(--line);padding:18px;text-align:center;color:var(--mut)}
 .drop.over{border-color:var(--c1);background:#00e5ff10}
@@ -122,6 +125,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
 </section>
 
 </main>
+<footer>TCC de Informática • protótipo educacional • valores são digitados manualmente</footer>
 
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -129,7 +133,8 @@ const R=v=>'R$ '+v.toFixed(2).replace('.',',');
 let db=null, me=null, tipo='agua', mode='in';
 
 // ---- navegação
-function go(p){$$('section').forEach(s=>s.classList.toggle('on',s.id===p));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));if(p==='reclama')loadR()}
+function bg(){document.body.classList.toggle('luz',tipo==='luz'&&$('#leitor').classList.contains('on'))}
+function go(p){$$('section').forEach(s=>s.classList.toggle('on',s.id===p));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));if(p==='reclama')loadR();bg()}
 $$('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 
 // ---- armazenamento: banco (db) com reserva local
@@ -163,7 +168,7 @@ luz:{
   ['Iluminação pública (CIP)',v.cip,'Contribuição municipal para manter a iluminação das ruas.']]}}
 };
 function form(){const m=MOD[tipo];$('#f').innerHTML='<div class="grid">'+m.campos.map(([k,l])=>`<label>${l}<input id="c_${k}" type="number" step="0.01" min="0"></label>`).join('')+'</div>';$('#out').innerHTML=''}
-$$('[data-t]').forEach(b=>b.onclick=()=>{tipo=b.dataset.t;$$('[data-t]').forEach(x=>x.classList.toggle('on',x===b));form()});
+$$('[data-t]').forEach(b=>b.onclick=()=>{tipo=b.dataset.t;bg();$$('[data-t]').forEach(x=>x.classList.toggle('on',x===b));form()});
 $('#ex').onclick=()=>{const m=MOD[tipo];Object.entries(m.ex).forEach(([k,v])=>$('#c_'+k).value=v);$('#out').innerHTML='<div class="res">Exemplo carregado. Informe o total impresso (ou use o botão Analisar para ver a soma correta).</div>'};
 function analisar(){
  const m=MOD[tipo],v={};m.campos.forEach(([k])=>v[k]=parseFloat($('#c_'+k).value)||0);
