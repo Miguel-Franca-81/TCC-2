@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>NEXUS • Leitor de Contas</title>
+<title>ACCOUNTS • Leitor de Contas</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#050816;--card:#0b1230cc;--ink:#e6f1ff;--mut:#8aa0c8;--c1:#00e5ff;--c2:#b455ff;--ok:#2dffa0;--bad:#ff4d6d;--line:#00e5ff44;--deep:#020510;--hd:#050816dd;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -123,6 +123,18 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
   </div>
   <div class="card"><h3>Minhas reclamações</h3><div id="rl"><span class="exp">Faça login para ver.</span></div></div>
 </section>
+<!-- Início do Código do VLibras -->
+<div vw class="enabled">
+  <div vw-access-button class="active"></div>
+  <div vw-plugin-wrapper>
+    <div class="vw-plugin-top-wrapper"></div>
+  </div>
+</div>
+<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+<script>
+  new window.VLibras.Widget('https://vlibras.gov.br/app');
+</script>
+<!-- Fim do Código do VLibras -->
 
 </main>
 <footer>TCC de Informática • protótipo educacional • valores são digitados manualmente</footer>
