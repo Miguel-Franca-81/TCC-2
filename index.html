@@ -4,14 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ACCOUNTS • Leitor de Contas</title>
-<<<<<<< HEAD
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
-=======
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
->>>>>>> bc3817f517f35ae5c78e1bbf92b1fe5038692a51
 <style>
 :root{--bg:#050816;--card:#0b1230cc;--ink:#e6f1ff;--mut:#8aa0c8;--c1:#00e5ff;--c2:#b455ff;--ok:#2dffa0;--bad:#ff4d6d;--line:#00e5ff44;--deep:#020510;--hd:#050816dd;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
@@ -54,7 +50,6 @@ td.n{text-align:right;white-space:nowrap;font-weight:600}
 .item{border:1px solid var(--line);padding:12px;margin-top:10px;background:var(--deep)}
 .item small{color:var(--mut)}
 .hide{display:none}
-<<<<<<< HEAD
 #who:after{content:" ▾"}
 .menu{position:absolute;right:0;top:calc(100% + 6px);min-width:190px;background:var(--hd);border:1px solid var(--c1);box-shadow:0 0 20px #00e5ff33;backdrop-filter:blur(8px);z-index:9;display:flex;flex-direction:column}
 .menu.hide{display:none}
@@ -64,8 +59,6 @@ td.n{text-align:right;white-space:nowrap;font-weight:600}
 :root[data-theme="light"]{--bg:#eaf2ff;--ink:#0a1230;--mut:#46567c;--card:#ffffffd0;--line:#0066ff44;--deep:#fff;--hd:#eaf2ffee;--c1:#0072d6;--c2:#7a2cd6;--ok:#0a7a3c;--bad:#c40024;color-scheme:light}
 body.dys,body.dys *{font-family:"Atkinson Hyperlegible",Verdana,sans-serif!important;letter-spacing:.05em;word-spacing:.12em}
 body.dys{line-height:1.8}
-=======
->>>>>>> bc3817f517f35ae5c78e1bbf92b1fe5038692a51
 body.luz{--bg:#ffd600;--ink:#1a1300;--mut:#5a4700;--card:#fff0a0cc;--line:#1a130066;--deep:#fffbe0;--hd:#ffd600ee;--c1:#b85c00;--c2:#6a00c4;--ok:#0a7a3c;--bad:#c40024;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px),radial-gradient(circle at 80% 0,#ffffff88,transparent 50%)}
 body.luz .logo{text-shadow:none}
 body.luz nav button:hover,body.luz nav button.on,body.luz .btn:hover,body.luz .tabs .btn.on{color:#fff}
@@ -80,41 +73,18 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
 </head>
 <body>
 <header>
-<<<<<<< HEAD
   <div class="logo">◢ ACCOUNTS</div>
   <nav>
     <button data-p="login" class="on">Login</button>
     <button data-p="leitor">Leitor</button>
-=======
-  <div class="logo">◢  ACCOUNTS</div>
-  <nav>
-    <button data-p="login">Login</button>
-    <button data-p="leitor" class="on">Leitor</button>
->>>>>>> bc3817f517f35ae5c78e1bbf92b1fe5038692a51
     <button data-p="reclama">Reclamações</button>
     <button data-p="sobre">Sobre nós</button>
   </nav>
   <span style="display:flex;gap:8px;align-items:center"><img id="av" class="hide" alt="" style="width:30px;height:30px;border-radius:50%;border:1px solid var(--c1);object-fit:cover"><span style="position:relative"><button id="who" class="tag" style="background:transparent;font:inherit;cursor:pointer;padding:2px 10px">visitante</button><div id="menu" class="menu hide"><button data-p="contas">📊 Minhas contas</button><button data-p="config">⚙️ Configurações</button><button id="msair" class="hide">⏻ Sair</button></div></span><button class="btn" id="tt" title="Tema claro/escuro">◐</button></span>
 </header>
 <main>
-<<<<<<< HEAD
 
 <section id="leitor">
-=======
-<section id="login">
-  <h1>Acesso</h1>
-  <p class="sub">Crie uma conta ou entre. Os dados são salvos no banco de dados; a senha é guardada apenas como hash SHA-256 com salt.</p>
-  <div class="card" style="max-width:460px">
-    <div class="tabs"><button class="btn on" data-m="in">Entrar</button><button class="btn" data-m="up">Cadastrar</button></div>
-    <label>Usuário<input id="u" autocomplete="username"></label><br>
-    <label id="lemail" class="hide">E-mail<input id="em" type="email"></label>
-    <label>Senha<input id="pw" type="password" autocomplete="current-password"></label>
-    <div class="row"><button class="btn" id="go">Entrar</button><button class="btn alt hide" id="out2">Sair</button></div>
-    <div class="msg" id="lm"></div>
-  </div>
-</section>
-<section id="leitor" class="on">
->>>>>>> bc3817f517f35ae5c78e1bbf92b1fe5038692a51
   <h1>Leitor de Contas</h1>
   <p class="sub">Digite os valores da sua conta. O sistema soma cada item, compara com o total impresso e explica cada parte.</p>
   <div class="card scan">
@@ -142,7 +112,6 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
   </div>
 </section>
 
-<<<<<<< HEAD
 <section id="login" class="on">
   <h1>Acesso</h1>
   <p class="sub">Crie uma conta ou entre. Os dados são salvos no banco de dados; a senha é guardada apenas como hash SHA-256 com salt.</p>
@@ -156,9 +125,6 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
     <div class="msg" id="lm"></div>
   </div>
 </section>
-=======
-
->>>>>>> bc3817f517f35ae5c78e1bbf92b1fe5038692a51
 
 <section id="reclama">
   <h1>Reclamações</h1>
@@ -175,18 +141,6 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
   </div>
   <div class="card"><h3>Minhas reclamações</h3><div id="rl"><span class="exp">Faça login para ver.</span></div></div>
 </section>
-<!-- Início do Código do VLibras -->
-<div vw class="enabled">
-  <div vw-access-button class="active"></div>
-  <div vw-plugin-wrapper>
-    <div class="vw-plugin-top-wrapper"></div>
-  </div>
-</div>
-<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-<script>
-  new window.VLibras.Widget('https://vlibras.gov.br/app');
-</script>
-<!-- Fim do Código do VLibras -->
 
 <section id="contas"><h1>Minhas contas</h1><p class="sub">Histórico das contas que você analisou enquanto estava logado.</p><div class="card" id="cl"></div></section>
 <section id="config"><h1>Configurações</h1><div class="card"><div class="grid">
@@ -198,11 +152,7 @@ footer{text-align:center;color:var(--mut);font-size:13px;padding:20px}
 <p>O sistema lê a conta (digitada, por foto ou QR code), soma cada item, compara com o total impresso, explica cada parte e permite registrar reclamações com a localização do usuário.</p>
 <p class="exp">Tecnologias: HTML, CSS e JavaScript, banco de dados com login protegido por hash, leitura por IA, PDF e áudio. Equipe: [nomes dos integrantes] • Orientador(a): [nome]</p></div></section>
 </main>
-<<<<<<< HEAD
 <footer><svg width="34" height="34" viewBox="0 0 40 40" style="vertical-align:middle;margin-right:8px"><polygon points="20,2 36,11 36,29 20,38 4,29 4,11" fill="none" stroke="var(--c1)" stroke-width="2"/><path d="M22 8 13 22h6l-2 10 10-15h-6z" fill="var(--c2)"/></svg><b class="logo" style="font-size:14px">ACCOUNTS</b><br>TCC de Informática • protótipo educacional • valores são digitados manualmente</footer>
-=======
-<footer>TCC de Informática • protótipo educacional • valores são digitados manualmente</footer>
->>>>>>> bc3817f517f35ae5c78e1bbf92b1fe5038692a51
 
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -211,11 +161,7 @@ let db=null, me=null, tipo='agua', mode='in';
 
 // ---- navegação
 function bg(){document.body.classList.toggle('luz',tipo==='luz'&&$('#leitor').classList.contains('on'))}
-<<<<<<< HEAD
 function go(p){$('#menu').classList.add('hide');$$('section').forEach(s=>s.classList.toggle('on',s.id===p));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));if(p==='reclama')loadR();if(p==='contas')loadC();bg()}
-=======
-function go(p){$$('section').forEach(s=>s.classList.toggle('on',s.id===p));$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));if(p==='reclama')loadR();bg()}
->>>>>>> bc3817f517f35ae5c78e1bbf92b1fe5038692a51
 $$('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 
 // ---- armazenamento: banco (db) com reserva local
