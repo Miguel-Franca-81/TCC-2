@@ -1,7 +1,7 @@
 {
   "name": "Leitor de Contas - Água e Luz",
   "short_name": "Leitor Contas",
-  "description": "Leia. Confira. Entenda. Resolva. Leitor inteligente de contas de água e luz com IA e histórico.",
+  "description": "Leia, confira e entenda cada informação das suas contas de água e luz.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
