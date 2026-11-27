@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#07101E" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Leitor de Contas - Água e Luz</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./icon-512x512.png" />
@@ -15,827 +13,524 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background-color: #040914; color: #F8FAFC; margin: 0; display: flex; justify-content: center; min-height: 100vh; }
-    .app-shell { width: 100%; max-width: 430px; min-height: 100vh; background: #07101E; position: relative; overflow-x: hidden; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.85); }
-    .screen { display: none; flex-direction: column; flex: 1; padding-bottom: 84px; animation: fadeIn 0.22s ease-out; }
+    :root {
+      --bg-outer: #040914;
+      --bg-app: #07101E;
+      --bg-card: #0D1B30;
+      --bg-input: #102038;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border-subtle: rgba(56, 189, 248, 0.16);
+      --nav-bg: rgba(8, 18, 34, 0.96);
+    }
+    html.light-theme {
+      --bg-outer: #E2E8F0;
+      --bg-app: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --bg-input: #F1F5F9;
+      --text-main: #0F172A;
+      --text-muted: #475569;
+      --border-subtle: rgba(15, 23, 42, 0.12);
+      --nav-bg: rgba(255, 255, 255, 0.96);
+    }
+    body {
+      background-color: var(--bg-outer);
+      color: var(--text-main);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .app-shell {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background-color: var(--bg-app);
+      position: relative;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.35);
+      transition: background-color 0.2s ease;
+    }
+    .screen { display: none; flex-direction: column; flex: 1; padding-bottom: 92px; animation: fadeIn 0.2s ease-out; }
     .screen.active { display: flex; }
-    .screen.no-nav { padding-bottom: 24px; }
+    .screen.no-nav { padding-bottom: 28px; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes scanLine { 0%, 100% { top: 8%; } 50% { top: 88%; } }
-    .laser-beam { position: absolute; left: 6%; right: 6%; height: 3px; background: linear-gradient(90deg, transparent, #38BDF8, #60A5FA, #38BDF8, transparent); box-shadow: 0 0 18px 4px rgba(56,189,248,0.75); animation: scanLine 2.4s ease-in-out infinite; }
-    .card-dark { background: #0D1B30; border: 1px solid rgba(56,189,248,0.12); border-radius: 18px; }
-    .btn-primary { background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); box-shadow: 0 8px 20px -4px rgba(37,99,235,0.5); }
-    .btn-primary:active { transform: scale(0.98); }
-    ::-webkit-scrollbar { width: 0px; background: transparent; }
+    .surface-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .input-field {
+      width: 100%;
+      background-color: var(--bg-input);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      outline: none;
+    }
+    .input-field:focus { border-color: #0284C7; }
+    .text-muted { color: var(--text-muted); }
+    .btn-action {
+      background: linear-gradient(135deg, #0284C7 0%, #2563EB 100%);
+      color: #FFFFFF;
+      font-weight: 700;
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.55);
+      transition: transform 0.14s ease, opacity 0.14s ease;
+    }
+    .btn-action:active { transform: scale(0.97); }
+    .btn-secondary {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      font-weight: 600;
+      border-radius: 14px;
+      padding: 11px 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.14s ease;
+    }
+    .btn-secondary:active { transform: scale(0.97); }
+    .bottom-bar {
+      background-color: var(--nav-bg);
+      border-top: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+    }
   </style>
 </head>
 <body>
   <div class="app-shell">
 
-    <!-- TELA 1: SPLASH SCREEN -->
-    <section id="screen-splash" class="screen active no-nav justify-between items-center relative overflow-hidden" style="background: radial-gradient(circle at 50% 30%, #0E2347 0%, #07101E 75%);">
-      <div class="w-full pt-16 flex flex-col items-center z-10 px-6 text-center">
-        <div class="w-40 h-40 mb-6 flex items-center justify-center relative">
-          <img src="./icon-512x512.png" alt="icon Leitor de Contas" class="w-36 h-36 drop-shadow-[0_0_25px_rgba(56,189,248,0.45)]" />
-        </div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white">Leitor de Contas</h1>
-        <p class="text-xs font-bold tracking-[0.28em] text-sky-400 uppercase mt-1.5">ÁGUA E LUZ</p>
-        <p class="text-sm text-slate-300 mt-5 font-medium">Leia. Confira. Entenda. Resolva.</p>
-
-        <button onclick="goTo('screen-login')" class="mt-10 btn-primary text-white font-semibold px-8 py-3.5 rounded-2xl text-sm tracking-wide transition">
-          Começar agora
+    <!-- TELA 1: SPLASH / ENTRADA -->
+    <section id="screen-splash" class="screen active no-nav justify-between items-center px-6 pt-14 pb-8">
+      <div class="w-full flex justify-end">
+        <button onclick="toggleTheme()" class="btn-secondary text-xs px-3.5 py-2 rounded-full">
+          <span class="theme-icon">☀️</span>
+          <span class="theme-label">Tema Claro</span>
         </button>
       </div>
 
-      <!-- Ilustração Água & Luz na Base -->
-      <div class="w-full relative h-56 mt-auto pointer-events-none">
-        <div class="absolute inset-0 bg-gradient-to-t from-sky-500/20 via-blue-600/10 to-transparent"></div>
-        <div class="absolute left-12 bottom-24 w-12 h-12 rounded-full bg-sky-400/20 border border-sky-300/40 flex items-center justify-center backdrop-blur-sm shadow-[0_0_25px_rgba(56,189,248,0.5)]">
-          <span class="text-xl">💧</span>
+      <div class="flex flex-col items-center text-center my-auto py-8">
+        <div class="w-36 h-36 mb-6 rounded-3xl overflow-hidden surface-card flex items-center justify-center p-2">
+          <img src="./icon-512x512.png" alt="Logo Leitor de Contas" class="w-full h-full object-contain rounded-2xl" />
         </div>
-        <div class="absolute right-12 bottom-20 w-16 h-16 rounded-full bg-amber-400/20 border border-amber-300/50 flex items-center justify-center backdrop-blur-sm shadow-[0_0_35px_rgba(251,191,36,0.65)]">
-          <span class="text-3xl">💡</span>
-        </div>
-        <svg viewBox="0 0 430 140" class="absolute bottom-0 w-full h-32 preserve-3d">
-          <path d="M0,60 C120,120 280,10 430,70 L430,140 L0,140 Z" fill="rgba(14,165,233,0.28)"/>
-          <path d="M0,85 C150,35 290,125 430,80 L430,140 L0,140 Z" fill="rgba(2,132,199,0.45)"/>
-        </svg>
+        <h1 class="text-3xl font-extrabold tracking-tight">Leitor de Contas</h1>
+        <p class="text-xs font-bold tracking-[0.26em] text-sky-500 uppercase mt-1.5">ÁGUA E LUZ</p>
+        <p class="text-sm text-muted mt-4 max-w-xs">
+          Registre e entenda o que significa cada item da sua conta, sem valores prontos.
+        </p>
+
+        <button onclick="goTo('screen-login')" class="w-full max-w-xs mt-8 btn-action text-sm">
+          <span>Entrar no aplicativo</span>
+          <span>→</span>
+        </button>
       </div>
+
+      <p class="text-[11px] text-muted text-center">Seus dados ficam exclusivamente no que você inserir.</p>
     </section>
 
     <!-- TELA 2: LOGIN -->
-    <section id="screen-login" class="screen no-nav px-6 pt-12 justify-between">
+    <section id="screen-login" class="screen no-nav px-6 pt-8 justify-between">
       <div>
-        <div class="flex flex-col items-center text-center mb-8">
-          <img src="./icon-512x512.png" alt="icon" class="w-20 h-20 mb-4" />
-          <h2 class="text-2xl font-bold text-white">Bem-vindo!</h2>
-          <p class="text-sm text-slate-400 mt-1">Faça seu login para continuar</p>
+        <div class="flex items-center justify-between mb-6">
+          <button onclick="goTo('screen-splash')" class="btn-secondary text-xs px-3 py-2">‹ Voltar</button>
+          <button onclick="toggleTheme()" class="btn-secondary text-xs px-3 py-2">
+            <span class="theme-icon">☀️</span>
+            <span class="theme-label">Tema Claro</span>
+          </button>
+        </div>
+
+        <div class="flex flex-col items-center text-center mb-7">
+          <img src="./icon-512x512.png" alt="Logo" class="w-16 h-16 rounded-2xl mb-3" />
+          <h2 class="text-2xl font-bold">Acesse sua conta</h2>
+          <p class="text-xs text-muted mt-1">Preencha seus dados para continuar</p>
         </div>
 
         <form onsubmit="handleLogin(event)" class="space-y-4">
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1.5">E-mail</label>
-            <input id="login-email" type="email" value="gabrielbatista@gmail.com" required
-              class="w-full bg-[#0D1B30] border border-slate-700/80 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-sky-400" />
+            <label class="block text-xs font-semibold text-muted mb-1.5">Nome</label>
+            <input id="login-name" type="text" placeholder="Digite seu nome" required class="input-field" />
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1.5">Senha</label>
-            <input id="login-pass" type="password" value="••••••••" required
-              class="w-full bg-[#0D1B30] border border-slate-700/80 rounded-xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-sky-400" />
+            <label class="block text-xs font-semibold text-muted mb-1.5">E-mail</label>
+            <input id="login-email" type="email" placeholder="Digite seu e-mail" required class="input-field" />
           </div>
-          <div class="text-right">
-            <button type="button" onclick="showToast('Link de redefinição enviado para seu e-mail!')" class="text-xs text-sky-400 hover:underline">Esqueceu a senha?</button>
+          <div>
+            <label class="block text-xs font-semibold text-muted mb-1.5">Senha</label>
+            <input id="login-pass" type="password" placeholder="Digite sua senha" required class="input-field" />
           </div>
 
-          <button type="submit" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm transition">
-            Entrar
+          <button type="submit" class="w-full btn-action text-sm mt-2">
+            <span>Continuar</span>
+            <span>✓</span>
           </button>
         </form>
-
-        <div class="my-6 flex items-center gap-3">
-          <div class="h-px bg-slate-800 flex-1"></div>
-          <span class="text-xs text-slate-500">ou continue com</span>
-          <div class="h-px bg-slate-800 flex-1"></div>
-        </div>
-
-        <div class="space-y-3">
-          <button onclick="loginDemo('Google')" class="w-full bg-[#0D1B30] hover:bg-[#132642] border border-slate-700/70 text-white font-medium py-3 rounded-xl text-sm flex items-center justify-center gap-2.5 transition">
-            <span class="font-bold text-sky-400">G</span> Continuar com Google
-          </button>
-          <button onclick="loginDemo('Apple')" class="w-full bg-[#0D1B30] hover:bg-[#132642] border border-slate-700/70 text-white font-medium py-3 rounded-xl text-sm flex items-center justify-center gap-2.5 transition">
-            <span></span> Continuar com Apple
-          </button>
-        </div>
       </div>
 
-      <p class="text-center text-xs text-slate-400 mt-6">
-        Ainda não tem conta? <button onclick="handleRegister()" class="text-sky-400 font-semibold hover:underline">Cadastre-se</button>
+      <p class="text-center text-xs text-muted mt-6">
+        Conexão Supabase configurável no código JavaScript.
       </p>
     </section>
 
-    <!-- TELA 3: HOME / DASHBOARD -->
-    <section id="screen-home" class="screen px-5 pt-7">
-      <div class="flex items-center justify-between mb-6">
-        <button onclick="goTo('screen-profile')" class="p-2 rounded-xl bg-[#0D1B30] text-slate-300">☰</button>
-        <div id="db-badge" class="text-[11px] px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-medium">
-          ● Banco Conectado
-        </div>
-        <button onclick="showToast('Sem novas notificações no momento')" class="p-2 rounded-xl bg-[#0D1B30] text-slate-300 relative">
-          🔔<span class="w-2 h-2 bg-sky-400 rounded-full absolute top-2 right-2"></span>
+    <!-- TELA 3: INÍCIO (SEM DADOS PRÉ-DEFINIDOS) -->
+    <section id="screen-home" class="screen px-5 pt-6">
+      <div class="flex items-center justify-between gap-2 mb-5">
+        <button onclick="goTo('screen-profile')" class="btn-secondary text-xs px-3 py-2">
+          <span>👤</span>
+          <span>Perfil</span>
+        </button>
+
+        <span id="db-status-pill" class="text-[11px] px-3 py-1 rounded-full surface-card font-semibold text-sky-500">
+          Sem dados iniciais
+        </span>
+
+        <button onclick="toggleTheme()" class="btn-secondary text-xs px-3 py-2">
+          <span class="theme-icon">☀️</span>
+          <span class="theme-label">Claro</span>
         </button>
       </div>
 
       <div class="mb-5">
-        <h2 class="text-2xl font-bold text-white">Olá, <span id="user-display-name">Gabriel</span>! 👋</h2>
-        <p class="text-xs text-slate-400 mt-0.5">Suas contas em dia</p>
+        <h2 id="greeting-title" class="text-2xl font-extrabold">Olá!</h2>
+        <p class="text-xs text-muted mt-0.5">Adicione uma conta para detalhar e explicar cada informação.</p>
       </div>
 
-      <!-- Cards Água e Luz -->
-      <div class="grid grid-cols-2 gap-3.5 mb-4">
-        <div onclick="filterHistory('agua')" class="cursor-pointer rounded-2xl p-4 bg-gradient-to-br from-[#0F294A] to-[#0A192F] border border-sky-500/30 flex flex-col items-center text-center transition hover:scale-[1.02]">
-          <div class="w-11 h-11 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400 text-xl mb-2">💧</div>
-          <span class="font-bold text-base text-white">Água</span>
-          <span id="count-agua" class="text-xs text-sky-300/80 mt-0.5">2 contas</span>
+      <!-- Resumo calculado apenas das contas lançadas pelo usuário -->
+      <div class="surface-card p-4 mb-4">
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-xs font-semibold text-muted">Total registrado por você</span>
+          <span id="home-total-count" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-500">0 contas</span>
         </div>
+        <p id="home-total-amount" class="text-2xl font-extrabold">R$ 0,00</p>
 
-        <div onclick="filterHistory('luz')" class="cursor-pointer rounded-2xl p-4 bg-gradient-to-br from-[#2D2412] to-[#141724] border border-amber-500/30 flex flex-col items-center text-center transition hover:scale-[1.02]">
-          <div class="w-11 h-11 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 text-xl mb-2">⚡</div>
-          <span class="font-bold text-base text-white">Luz</span>
-          <span id="count-luz" class="text-xs text-amber-300/80 mt-0.5">2 contas</span>
-        </div>
-      </div>
-
-      <!-- Botão Escanear Nova Conta -->
-      <button onclick="openScanner()" class="w-full btn-primary text-white font-semibold py-4 rounded-2xl text-sm flex items-center justify-center gap-2.5 mb-6 transition">
-        <span class="text-lg">📷</span> Escanear nova conta
-      </button>
-
-      <!-- Resumo do Mês -->
-      <h3 class="text-sm font-semibold text-slate-200 mb-3">Resumo do mês</h3>
-      <div class="card-dark p-4 mb-5">
-        <div class="flex justify-between items-start">
+        <div class="grid grid-cols-2 gap-3 mt-4 pt-3 border-t border-[var(--border-subtle)] text-xs">
           <div>
-            <p class="text-xs text-slate-400">Total a pagar</p>
-            <p id="home-total-month" class="text-2xl font-extrabold text-white mt-0.5">R$ 377,23</p>
-            <p class="text-[11px] text-emerald-400 mt-1">↓ 12% em relação ao mês anterior</p>
+            <span class="text-muted block">Água</span>
+            <span id="home-agua-total" class="font-bold">R$ 0,00</span>
           </div>
-          <span class="text-[11px] bg-sky-500/15 text-sky-300 px-2.5 py-1 rounded-lg font-medium">Jun/2024</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-800">
-          <div onclick="openBillDetail('agua-latest')" class="cursor-pointer flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">💧</span>
-            <div>
-              <p class="text-[11px] text-slate-400">Água</p>
-              <p id="home-agua-val" class="text-sm font-bold text-white">R$ 120,45</p>
-              <p class="text-[10px] text-slate-400">Vence: 10/06</p>
-            </div>
-          </div>
-          <div onclick="openBillDetail('luz-latest')" class="cursor-pointer flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">⚡</span>
-            <div>
-              <p class="text-[11px] text-slate-400">Luz</p>
-              <p id="home-luz-val" class="text-sm font-bold text-white">R$ 256,78</p>
-              <p class="text-[10px] text-slate-400">Vence: 15/06</p>
-            </div>
+          <div>
+            <span class="text-muted block">Luz</span>
+            <span id="home-luz-total" class="font-bold">R$ 0,00</span>
           </div>
         </div>
       </div>
 
-      <!-- Atalhos Rápidos -->
-      <div class="grid grid-cols-4 gap-2.5">
-        <button onclick="goTo('screen-history')" class="card-dark py-3 flex flex-col items-center gap-1.5 hover:border-sky-400/40">
-          <span class="text-sky-400 text-lg">🧾</span>
-          <span class="text-[11px] text-slate-300">Histórico</span>
+      <!-- Botões de ação principais -->
+      <div class="grid grid-cols-1 gap-3 mb-5">
+        <button onclick="openBillForm('agua')" class="w-full btn-action text-sm">
+          <span>💧</span>
+          <span>Adicionar e explicar conta de Água</span>
         </button>
-        <button onclick="goTo('screen-charts')" class="card-dark py-3 flex flex-col items-center gap-1.5 hover:border-sky-400/40">
-          <span class="text-sky-400 text-lg">📊</span>
-          <span class="text-[11px] text-slate-300">Gráficos</span>
+        <button onclick="openBillForm('luz')" class="w-full btn-action text-sm" style="background: linear-gradient(135deg, #D97706 0%, #F59E0B 100%); box-shadow: 0 8px 20px -6px rgba(245, 158, 11, 0.45);">
+          <span>⚡</span>
+          <span>Adicionar e explicar conta de Luz</span>
         </button>
-        <button onclick="goTo('screen-locations')" class="card-dark py-3 flex flex-col items-center gap-1.5 hover:border-sky-400/40">
-          <span class="text-sky-400 text-lg">📍</span>
-          <span class="text-[11px] text-slate-300">Locais</span>
+      </div>
+
+      <!-- Atalhos claros -->
+      <div class="grid grid-cols-3 gap-2.5">
+        <button onclick="goTo('screen-history')" class="btn-secondary flex-col py-3.5 text-xs">
+          <span class="text-base">📋</span>
+          <span>Minhas contas</span>
         </button>
-        <button onclick="showToast('Suporte 24h: suporte@leitordecontas.app')" class="card-dark py-3 flex flex-col items-center gap-1.5 hover:border-sky-400/40">
-          <span class="text-sky-400 text-lg">🎧</span>
-          <span class="text-[11px] text-slate-300">Suporte</span>
+        <button onclick="goTo('screen-locations')" class="btn-secondary flex-col py-3.5 text-xs">
+          <span class="text-base">📍</span>
+          <span>Sabesp e Enel</span>
+        </button>
+        <button onclick="toggleTheme()" class="btn-secondary flex-col py-3.5 text-xs">
+          <span class="text-base theme-icon">☀️</span>
+          <span class="theme-label">Tema</span>
         </button>
       </div>
     </section>
 
-    <!-- TELA 4: ESCANEAR CONTA -->
-    <section id="screen-scan" class="screen no-nav px-5 pt-6 justify-between">
-      <div>
-        <div class="flex items-center justify-between mb-4">
-          <button onclick="stopCamera(); goTo('screen-home')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300">‹</button>
-          <div class="text-center">
-            <h2 class="text-base font-bold text-white">Escanear conta</h2>
-            <p class="text-[11px] text-slate-400">Posicione a conta dentro do quadro</p>
-          </div>
-          <button onclick="toggleSimError()" id="btn-sim-mode" class="text-[10px] px-2 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700" title="Alternar entre leitura normal e alerta de erro">
-            Modo: Normal
-          </button>
-        </div>
+    <!-- TELA 4: LANÇAR CONTA E ANEXAR/LER FOTO (SEM ESPELHAR CONTA PRONTA) -->
+    <section id="screen-form" class="screen px-5 pt-6">
+      <div class="flex items-center justify-between mb-4">
+        <button onclick="goTo('screen-home')" class="btn-secondary text-xs px-3 py-2">‹ Voltar</button>
+        <h2 class="text-base font-bold">Registrar e detalhar conta</h2>
+        <button onclick="toggleTheme()" class="btn-secondary text-xs px-2.5 py-2">
+          <span class="theme-icon">☀️</span>
+        </button>
+      </div>
 
-        <!-- Seletor Água / Luz -->
-        <div class="grid grid-cols-2 gap-2.5 mb-4">
-          <button id="scan-type-agua" onclick="setScanType('agua')" class="py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 bg-sky-600 text-white shadow-lg">
+      <form onsubmit="handleBillSubmit(event)" class="space-y-3.5">
+        <div class="grid grid-cols-2 gap-2.5">
+          <button type="button" id="btn-type-agua" onclick="selectBillType('agua')" class="btn-action text-xs py-3">
             💧 Água
           </button>
-          <button id="scan-type-luz" onclick="setScanType('luz')" class="py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 bg-[#0D1B30] text-slate-300 border border-slate-800">
+          <button type="button" id="btn-type-luz" onclick="selectBillType('luz')" class="btn-secondary text-xs py-3">
             ⚡ Luz
           </button>
         </div>
 
-        <!-- Viewfinder da Câmera -->
-        <div class="relative w-full h-96 rounded-2xl overflow-hidden bg-slate-900 border-2 border-sky-400/50 flex items-center justify-center">
-          <video id="camera-video" autoplay playsinline class="absolute inset-0 w-full h-full object-cover hidden"></video>
-          
-          <!-- Mock realista de conta impressa quando câmera não está ativa -->
-          <div id="mock-bill-paper" class="w-64 bg-slate-100 text-slate-800 rounded-lg p-4 shadow-2xl transform -rotate-1 border border-slate-300">
-            <div class="flex justify-between items-center border-b border-slate-300 pb-2 mb-3">
-              <span id="paper-provider" class="font-extrabold text-sky-700 text-sm">💧 CONTA DE ÁGUA</span>
-              <span id="paper-company" class="text-[10px] font-bold bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded">SABESP</span>
-            </div>
-            <div class="space-y-2 text-xs">
-              <div class="flex justify-between">
-                <span class="text-slate-500">VENCIMENTO</span>
-                <span id="paper-due" class="font-bold">10/06/2024</span>
-              </div>
-              <div class="flex justify-between items-center bg-slate-200/80 p-2 rounded">
-                <span class="text-slate-600 font-semibold">TOTAL A PAGAR</span>
-                <span id="paper-amount" class="font-extrabold text-base text-slate-900">R$ 120,45</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-500">CONSUMO</span>
-                <span id="paper-usage" class="font-bold">10 m³</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-500">REFERÊNCIA</span>
-                <span class="font-bold">MAI/2024</span>
-              </div>
-            </div>
-            <div class="mt-4 pt-2 border-t border-dashed border-slate-400 text-[9px] font-mono tracking-widest text-center text-slate-500">
-              83640000001 20450048100 94827163540
-            </div>
-          </div>
-
-          <!-- Cantoneiras do Scanner -->
-          <div class="absolute inset-4 pointer-events-none">
-            <div class="w-7 h-7 border-t-4 border-l-4 border-sky-400 rounded-tl-lg absolute top-0 left-0"></div>
-            <div class="w-7 h-7 border-t-4 border-r-4 border-sky-400 rounded-tr-lg absolute top-0 right-0"></div>
-            <div class="w-7 h-7 border-b-4 border-l-4 border-sky-400 rounded-bl-lg absolute bottom-0 left-0"></div>
-            <div class="w-7 h-7 border-b-4 border-r-4 border-sky-400 rounded-br-lg absolute bottom-0 right-0"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Controles da Câmera -->
-      <div class="flex items-center justify-around pt-6 pb-2">
-        <label class="flex flex-col items-center gap-1 text-slate-400 cursor-pointer text-xs">
-          <div class="w-11 h-11 rounded-full bg-[#0D1B30] flex items-center justify-center text-lg">🖼️</div>
-          <span>Galeria</span>
-          <input type="file" accept="image/*" class="hidden" onchange="startAnalysis()" />
-        </label>
-
-        <button onclick="startAnalysis()" class="w-18 h-18 p-1.5 rounded-full border-4 border-sky-400 flex items-center justify-center active:scale-95 transition">
-          <div class="w-14 h-14 rounded-full bg-white"></div>
-        </button>
-
-        <button onclick="showToast('Flash alternado')" class="flex flex-col items-center gap-1 text-slate-400 text-xs">
-          <div class="w-11 h-11 rounded-full bg-[#0D1B30] flex items-center justify-center text-lg">⚡</div>
-          <span>Flash</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- TELA 5: ANALISANDO CONTA (IA) -->
-    <section id="screen-analyzing" class="screen no-nav px-6 pt-10 justify-between">
-      <div>
-        <button onclick="goTo('screen-scan')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300 mb-6">‹</button>
-
-        <div class="relative w-48 h-56 mx-auto rounded-2xl bg-[#0D1B30] border border-sky-400/40 p-4 flex flex-col justify-between overflow-hidden shadow-[0_0_40px_rgba(56,189,248,0.2)]">
-          <div class="laser-beam"></div>
-          <div class="space-y-2 opacity-60">
-            <div class="h-3 w-24 bg-sky-400/40 rounded"></div>
-            <div class="h-2 w-full bg-slate-600 rounded"></div>
-            <div class="h-2 w-4/5 bg-slate-600 rounded"></div>
-            <div class="h-8 w-full bg-sky-500/20 rounded mt-3"></div>
-            <div class="h-2 w-3/4 bg-slate-600 rounded"></div>
-            <div class="h-2 w-full bg-slate-600 rounded"></div>
-          </div>
-          <div class="text-[10px] text-center text-sky-300 font-mono">OCR + IA ATIVO</div>
-        </div>
-
-        <div class="text-center mt-6 mb-6">
-          <h2 class="text-xl font-bold text-white">Analisando conta...</h2>
-          <p class="text-xs text-slate-400 mt-1">Extraindo informações com IA</p>
-        </div>
-
-        <div class="space-y-3 text-sm" id="analysis-steps">
-          <div class="flex items-center gap-3 text-slate-300" id="step-1">
-            <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs">✓</span>
-            <span>Localizando dados...</span>
-          </div>
-          <div class="flex items-center gap-3 text-slate-400" id="step-2">
-            <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xs">•</span>
-            <span>Lendo valor da conta...</span>
-          </div>
-          <div class="flex items-center gap-3 text-slate-400" id="step-3">
-            <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xs">•</span>
-            <span>Identificando consumo...</span>
-          </div>
-          <div class="flex items-center gap-3 text-slate-400" id="step-4">
-            <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-500 flex items-center justify-center text-xs">•</span>
-            <span>Validando informações...</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-4">
-        <div class="flex justify-between text-xs text-slate-400 mb-1.5">
-          <span>Processando</span>
-          <span id="analysis-percent" class="text-sky-400 font-bold">0%</span>
-        </div>
-        <div class="w-full h-2.5 bg-[#0D1B30] rounded-full overflow-hidden">
-          <div id="analysis-bar" class="h-full bg-gradient-to-r from-sky-500 to-blue-500 rounded-full transition-all duration-200" style="width: 0%"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TELA 6: LEITURA CONCLUÍDA -->
-    <section id="screen-result-ok" class="screen no-nav px-5 pt-7 justify-between">
-      <div>
-        <button onclick="goTo('screen-home')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300 mb-3">‹</button>
-
-        <div class="text-center mb-5">
-          <div class="w-14 h-14 rounded-full bg-emerald-500/20 border border-emerald-400/50 text-emerald-400 flex items-center justify-center text-2xl mx-auto mb-3 shadow-[0_0_25px_rgba(16,185,129,0.35)]">
-            ✓
-          </div>
-          <h2 class="text-xl font-bold text-white">Leitura concluída!</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Dados extraídos com sucesso</p>
-        </div>
-
-        <div class="card-dark p-4 space-y-3.5 mb-4">
-          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-            <span id="res-ok-title" class="text-xs font-bold text-sky-400 uppercase flex items-center gap-1.5">💧 CONTA DE ÁGUA</span>
-            <span id="res-ok-company" class="text-xs font-bold text-slate-300">sabesp</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-slate-400">Valor a pagar</span>
-            <span id="res-ok-amount" class="text-lg font-extrabold text-white">R$ 120,45</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-slate-400">Vencimento</span>
-            <span id="res-ok-due" class="text-sm font-semibold text-slate-200">10/06/2024</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-slate-400">Consumo</span>
-            <span id="res-ok-usage" class="text-sm font-semibold text-slate-200">10 m³</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-xs text-slate-400">Referência</span>
-            <span id="res-ok-ref" class="text-sm font-semibold text-slate-200">MAI/2024</span>
-          </div>
-        </div>
-
-        <div class="rounded-2xl p-3.5 bg-emerald-500/15 border border-emerald-500/35 flex items-center gap-3">
-          <span class="w-7 h-7 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-sm shrink-0">✓</span>
-          <div>
-            <p class="text-xs font-bold text-emerald-300">Os valores estão corretos!</p>
-            <p class="text-[11px] text-emerald-200/80">Nada de errado foi encontrado.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-2.5 mt-6">
-        <button onclick="saveScannedBill(false)" class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm">
-          Salvar conta
-        </button>
-        <button onclick="showToast('Comprovante pronto para compartilhar!')" class="w-full bg-[#0D1B30] border border-slate-700 text-slate-200 font-medium py-3 rounded-xl text-sm">
-          Compartilhar
-        </button>
-        <button onclick="openBillDetail('scanned')" class="w-full text-center text-xs text-sky-400 py-1.5 hover:underline">
-          Ver detalhes completos
-        </button>
-      </div>
-    </section>
-
-    <!-- TELA 7: ATENÇÃO! POSSÍVEL ERRO ENCONTRADO -->
-    <section id="screen-result-alert" class="screen no-nav px-5 pt-7 justify-between" style="background: radial-gradient(circle at 50% 0%, rgba(220,38,38,0.22) 0%, #07101E 55%);">
-      <div>
-        <button onclick="goTo('screen-home')" class="w-9 h-9 rounded-full bg-[#1C141D] flex items-center justify-center text-slate-300 mb-3">‹</button>
-
-        <div class="text-center mb-4">
-          <div class="w-13 h-13 rounded-2xl bg-red-500/20 border border-red-500/50 text-red-400 flex items-center justify-center text-2xl mx-auto mb-2.5">
-            ⚠️
-          </div>
-          <h2 class="text-xl font-bold text-red-400">Atenção!</h2>
-          <p class="text-xs text-slate-300 mt-0.5">Possível erro encontrado</p>
-        </div>
-
-        <div class="rounded-2xl p-4 bg-[#19131D] border border-red-500/35 mb-4">
-          <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-bold text-amber-400">⚡ CONTA DE LUZ</span>
-            <span class="text-xs font-bold text-slate-300">enel</span>
-          </div>
-          <div class="flex justify-between items-baseline">
-            <span class="text-xs text-slate-400">Valor lido</span>
-            <span class="text-xl font-extrabold text-white">R$ 312,50</span>
-          </div>
-          <p class="text-right text-[11px] text-red-400 font-medium mt-1">Valor acima da média • +22% em relação ao mês anterior</p>
-        </div>
-
-        <p class="text-xs font-semibold text-slate-300 mb-2">O que pode estar errado?</p>
-        <div class="space-y-2 mb-4">
-          <div class="p-2.5 rounded-xl bg-red-500/10 border border-red-500/25 text-xs text-red-200 flex items-center gap-2.5">
-            <span class="text-red-400 font-bold">▲</span> Aumento incomum no consumo
-          </div>
-          <div class="p-2.5 rounded-xl bg-red-500/10 border border-red-500/25 text-xs text-red-200 flex items-center gap-2.5">
-            <span class="text-red-400 font-bold">▲</span> Possível leitura incorreta do medidor
-          </div>
-        </div>
-
-        <p class="text-xs font-semibold text-slate-300 mb-2">O que fazer?</p>
-        <div class="space-y-2 text-xs text-slate-300">
-          <div class="flex items-center gap-2.5"><span class="w-5 h-5 rounded bg-sky-500/20 text-sky-400 font-bold flex items-center justify-center">1</span> Confira a conta original e o relógio</div>
-          <div class="flex items-center gap-2.5"><span class="w-5 h-5 rounded bg-sky-500/20 text-sky-400 font-bold flex items-center justify-center">2</span> Entre em contato com a empresa</div>
-          <div class="flex items-center gap-2.5"><span class="w-5 h-5 rounded bg-sky-500/20 text-sky-400 font-bold flex items-center justify-center">3</span> Solicite a revisão da conta</div>
-        </div>
-      </div>
-
-      <div class="space-y-2.5 mt-5">
-        <button onclick="showToast('Protocolo de contestação gerado! Ligue 0800 72 72 120 (Enel)')" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-xl text-sm">
-          Como contestar
-        </button>
-        <button onclick="saveScannedBill(true)" class="w-full bg-[#0D1B30] border border-slate-700 text-slate-300 font-medium py-3 rounded-xl text-sm">
-          Salvar mesmo assim
-        </button>
-      </div>
-    </section>
-
-    <!-- TELA 8: DETALHES DA CONTA -->
-    <section id="screen-details" class="screen no-nav px-5 pt-7 justify-between">
-      <div>
-        <div class="flex items-center justify-between mb-5">
-          <button onclick="goTo('screen-home')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300">‹</button>
-          <h2 class="text-base font-bold text-white">Detalhes da conta</h2>
-          <button onclick="showToast('PDF da fatura baixado')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300">⋮</button>
-        </div>
-
-        <div class="card-dark p-4 mb-4">
-          <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-            <span id="det-title" class="text-xs font-bold text-amber-400">⚡ CONTA DE LUZ</span>
-            <span id="det-company" class="text-xs font-bold text-slate-300">enel</span>
-          </div>
-          <div class="flex justify-between items-center mt-3">
-            <span class="text-xs text-slate-400">Valor a pagar</span>
-            <div class="text-right">
-              <p id="det-amount" class="text-xl font-extrabold text-white">R$ 256,78</p>
-              <span class="inline-block text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-semibold">Dentro da média</span>
-            </div>
-          </div>
-          <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs">
-            <div>
-              <p class="text-slate-400 text-[11px]">Vencimento</p>
-              <p id="det-due" class="font-semibold text-white mt-0.5">15/06/2024</p>
-            </div>
-            <div>
-              <p class="text-slate-400 text-[11px]">Consumo</p>
-              <p id="det-usage" class="font-semibold text-white mt-0.5">250 kWh</p>
-            </div>
-            <div>
-              <p class="text-slate-400 text-[11px]">Referência</p>
-              <p id="det-ref" class="font-semibold text-white mt-0.5">MAI/2024</p>
-            </div>
-          </div>
-        </div>
-
-        <h3 class="text-xs font-semibold text-slate-300 mb-2">Histórico de consumo</h3>
-        <div class="card-dark p-4 mb-4">
-          <div class="flex items-end justify-between h-28 gap-2 pt-4">
-            <div class="flex-1 flex flex-col items-center gap-1">
-              <span class="text-[10px] text-slate-400">220</span>
-              <div class="w-full bg-slate-700 rounded-t-md h-14"></div>
-              <span class="text-[10px] text-slate-400">Jan</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1">
-              <span class="text-[10px] text-slate-400">210</span>
-              <div class="w-full bg-slate-700 rounded-t-md h-12"></div>
-              <span class="text-[10px] text-slate-400">Fev</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1">
-              <span class="text-[10px] text-slate-400">240</span>
-              <div class="w-full bg-slate-700 rounded-t-md h-16"></div>
-              <span class="text-[10px] text-slate-400">Mar</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1">
-              <span class="text-[10px] text-slate-400">265</span>
-              <div class="w-full bg-slate-700 rounded-t-md h-20"></div>
-              <span class="text-[10px] text-slate-400">Abr</span>
-            </div>
-            <div class="flex-1 flex flex-col items-center gap-1">
-              <span class="text-[10px] text-amber-400 font-bold">250</span>
-              <div class="w-full bg-amber-400 rounded-t-md h-18"></div>
-              <span class="text-[10px] text-amber-400 font-bold">Mai</span>
-            </div>
-          </div>
-        </div>
-
-        <h3 class="text-xs font-semibold text-slate-300 mb-2">Débitos</h3>
-        <div class="card-dark p-3.5 flex items-center gap-2.5 text-xs text-emerald-400">
-          <span>✓</span> Sem débitos anteriores em aberto
-        </div>
-      </div>
-
-      <button onclick="copyPixAndPay()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-xl text-sm mt-6">
-        Pagar conta (Copiar PIX / Código)
-      </button>
-    </section>
-
-    <!-- TELA 9: HISTÓRICO -->
-    <section id="screen-history" class="screen px-5 pt-7">
-      <div class="flex items-center justify-between mb-5">
-        <button onclick="goTo('screen-home')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300">‹</button>
-        <h2 class="text-base font-bold text-white">Histórico</h2>
-        <div class="w-9"></div>
-      </div>
-
-      <div class="grid grid-cols-3 gap-2 mb-5">
-        <button id="hist-tab-all" onclick="renderHistory('all')" class="py-2 rounded-xl text-xs font-semibold bg-sky-600 text-white">Todas</button>
-        <button id="hist-tab-agua" onclick="renderHistory('agua')" class="py-2 rounded-xl text-xs font-semibold bg-[#0D1B30] text-slate-300">💧 Água</button>
-        <button id="hist-tab-luz" onclick="renderHistory('luz')" class="py-2 rounded-xl text-xs font-semibold bg-[#0D1B30] text-slate-300">⚡ Luz</button>
-      </div>
-
-      <div id="history-list" class="space-y-3"></div>
-    </section>
-
-    <!-- TELA 10: GRÁFICOS E CONSUMO -->
-    <section id="screen-charts" class="screen px-5 pt-7">
-      <div class="flex items-center justify-between mb-5">
-        <button onclick="goTo('screen-home')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300">‹</button>
-        <h2 class="text-base font-bold text-white">Gráficos e Consumo</h2>
-        <div class="w-9"></div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-2.5 mb-4">
-        <button id="chart-btn-agua" onclick="switchChart('agua')" class="py-2.5 rounded-xl text-xs font-semibold bg-sky-600 text-white">💧 Água</button>
-        <button id="chart-btn-luz" onclick="switchChart('luz')" class="py-2.5 rounded-xl text-xs font-semibold bg-[#0D1B30] text-slate-300">⚡ Luz</button>
-      </div>
-
-      <div class="card-dark p-4 mb-4">
-        <p id="chart-title" class="text-xs font-semibold text-slate-300 mb-3">Consumo de Água (m³)</p>
-        <svg id="chart-svg" viewBox="0 0 320 130" class="w-full h-36 overflow-visible">
-          <polyline fill="none" stroke="#38BDF8" stroke-width="3" points="20,90 85,78 150,84 215,40 285,55" />
-          <circle cx="20" cy="90" r="4" fill="#38BDF8"/><text x="14" y="80" fill="#94A3B8" font-size="10">8</text>
-          <circle cx="85" cy="78" r="4" fill="#38BDF8"/><text x="79" y="68" fill="#94A3B8" font-size="10">9</text>
-          <circle cx="150" cy="84" r="4" fill="#38BDF8"/><text x="144" y="74" fill="#94A3B8" font-size="10">8,5</text>
-          <circle cx="215" cy="40" r="4" fill="#38BDF8"/><text x="209" y="30" fill="#94A3B8" font-size="10">11</text>
-          <circle cx="285" cy="55" r="5" fill="#38BDF8"/><text x="279" y="43" fill="#FFFFFF" font-weight="bold" font-size="11">10</text>
-          <text x="12" y="122" fill="#64748B" font-size="10">Jan</text>
-          <text x="77" y="122" fill="#64748B" font-size="10">Fev</text>
-          <text x="142" y="122" fill="#64748B" font-size="10">Mar</text>
-          <text x="207" y="122" fill="#64748B" font-size="10">Abr</text>
-          <text x="277" y="122" fill="#64748B" font-size="10">Mai</text>
-        </svg>
-
-        <div class="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800">
-          <div>
-            <p class="text-[11px] text-slate-400">Média</p>
-            <p id="chart-avg" class="text-base font-bold text-white">9,6 m³</p>
-          </div>
-          <div>
-            <p class="text-[11px] text-slate-400">Maior consumo</p>
-            <p id="chart-max" class="text-base font-bold text-white">11 m³</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="rounded-2xl p-3.5 bg-emerald-500/15 border border-emerald-500/30 flex items-center gap-3 mb-3">
-        <span class="w-7 h-7 rounded-full bg-emerald-500 text-slate-950 font-bold flex items-center justify-center text-sm">✓</span>
         <div>
-          <p class="text-xs font-bold text-emerald-300">Seu consumo está equilibrado!</p>
-          <p class="text-[11px] text-emerald-200/80">Continue assim!</p>
+          <label class="block text-xs font-semibold text-muted mb-1">Anexar foto ou PDF da conta (opcional)</label>
+          <label class="btn-secondary w-full text-xs cursor-pointer py-3">
+            <span>📎 Escolher arquivo da conta</span>
+            <input id="bill-file" type="file" accept="image/*,application/pdf" class="hidden" onchange="onFileSelected(event)" />
+          </label>
+          <p id="bill-file-name" class="text-[11px] text-sky-500 mt-1 hidden"></p>
         </div>
-      </div>
 
-      <div class="card-dark p-3.5 flex items-start gap-3">
-        <span class="text-lg">💧</span>
         <div>
-          <p class="text-xs font-bold text-sky-400">Dica:</p>
-          <p class="text-[11px] text-slate-300 mt-0.5">Pequenos vazamentos podem aumentar o consumo em até 20%. Fique atento!</p>
+          <label class="block text-xs font-semibold text-muted mb-1">Empresa / Concessionária</label>
+          <input id="bill-company" type="text" placeholder="Ex.: Sabesp, Enel, concessionária local" required class="input-field" />
         </div>
-      </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-muted mb-1">Valor total (R$)</label>
+            <input id="bill-amount" type="number" step="0.01" min="0" placeholder="0,00" required class="input-field" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-muted mb-1">Vencimento</label>
+            <input id="bill-due" type="text" placeholder="DD/MM/AAAA" required class="input-field" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-muted mb-1">Consumo medido</label>
+            <input id="bill-usage" type="text" placeholder="Ex.: 12 m³ ou 180 kWh" required class="input-field" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-muted mb-1">Mês de referência</label>
+            <input id="bill-ref" type="text" placeholder="Ex.: 11/2026" required class="input-field" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-muted mb-1">Tarifa / Taxas extras (opcional)</label>
+            <input id="bill-extra" type="text" placeholder="Ex.: Iluminação / Esgoto" class="input-field" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-muted mb-1">Código / Linha digitável (opcional)</label>
+            <input id="bill-code" type="text" placeholder="Cole se quiser guardar" class="input-field" />
+          </div>
+        </div>
+
+        <button type="submit" class="w-full btn-action text-sm mt-2">
+          <span>Salvar e explicar cada informação</span>
+          <span>→</span>
+        </button>
+      </form>
     </section>
 
-    <!-- TELA 11: LOCAIS PRÓXIMOS -->
-    <section id="screen-locations" class="screen px-5 pt-7">
+    <!-- TELA 5: DETALHAMENTO E EXPLICAÇÃO DE CADA INFORMAÇÃO DA CONTA -->
+    <section id="screen-explain" class="screen px-5 pt-6">
       <div class="flex items-center justify-between mb-4">
-        <button onclick="goTo('screen-home')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300">‹</button>
-        <h2 class="text-base font-bold text-white">Locais próximos</h2>
-        <div class="w-9"></div>
+        <button onclick="goTo('screen-history')" class="btn-secondary text-xs px-3 py-2">‹ Contas</button>
+        <h2 class="text-base font-bold">Explicação da conta</h2>
+        <button onclick="toggleTheme()" class="btn-secondary text-xs px-2.5 py-2">
+          <span class="theme-icon">☀️</span>
+        </button>
       </div>
 
-      <!-- Mapa Interativo Estilizado -->
-      <div class="relative w-full h-44 rounded-2xl bg-[#0D1B30] border border-slate-700/70 overflow-hidden mb-4">
-        <svg viewBox="0 0 360 180" class="w-full h-full">
-          <rect width="360" height="180" fill="#0B182B"/>
-          <path d="M0,40 L360,110 M60,0 L140,180 M240,0 L200,180 M0,140 L360,90" stroke="#1E3A5F" stroke-width="6"/>
-          <circle cx="180" cy="95" r="8" fill="#3B82F6" stroke="#FFFFFF" stroke-width="2.5"/>
-          <circle cx="115" cy="65" r="10" fill="#0EA5E9"/>
-          <circle cx="255" cy="115" r="10" fill="#F59E0B"/>
-        </svg>
-        <span class="absolute bottom-2.5 left-3 text-[10px] bg-slate-950/80 px-2.5 py-1 rounded-full text-slate-300">📍 Sua localização atual</span>
-      </div>
-
-      <h3 class="text-xs font-semibold text-slate-300 mb-2.5">Postos de atendimento</h3>
-      <div class="space-y-3 mb-4">
-        <div class="card-dark p-3.5 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <span class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center">💧</span>
-            <div>
-              <p class="text-xs font-bold text-white">Sabesp - CEU Ceucap</p>
-              <p class="text-[11px] text-slate-400">Rua Manoel de Mattos, 120 • 08:00 - 17:00</p>
-            </div>
-          </div>
-          <span class="text-xs font-bold text-sky-400">1,2 km</span>
-        </div>
-
-        <div class="card-dark p-3.5 flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <span class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">⚡</span>
-            <div>
-              <p class="text-xs font-bold text-white">Enel - Shopping Metrô</p>
-              <p class="text-[11px] text-slate-400">Av. Cruzeiro do Sul • 10:00 - 20:00</p>
-            </div>
-          </div>
-          <span class="text-xs font-bold text-amber-400">2,4 km</span>
-        </div>
-      </div>
-
-      <a href="https://www.google.com/maps/search/sabesp+enel+atendimento" target="_blank" rel="noopener"
-         class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2">
-        🧭 Ver rota no Google Maps
-      </a>
+      <div id="explain-container" class="space-y-3"></div>
     </section>
 
-    <!-- TELA 12: MEU PERFIL -->
-    <section id="screen-profile" class="screen px-5 pt-7">
+    <!-- TELA 6: HISTÓRICO / MINHAS CONTAS -->
+    <section id="screen-history" class="screen px-5 pt-6">
+      <div class="flex items-center justify-between mb-4">
+        <button onclick="goTo('screen-home')" class="btn-secondary text-xs px-3 py-2">‹ Início</button>
+        <h2 class="text-base font-bold">Minhas contas</h2>
+        <button onclick="openBillForm('agua')" class="btn-action text-xs px-3 py-2">+ Nova</button>
+      </div>
+
+      <div id="history-container" class="space-y-3"></div>
+    </section>
+
+    <!-- TELA 7: LOCALIZAÇÕES SABESP E ENEL MAIS PRÓXIMAS -->
+    <section id="screen-locations" class="screen px-5 pt-6">
+      <div class="flex items-center justify-between mb-4">
+        <button onclick="goTo('screen-home')" class="btn-secondary text-xs px-3 py-2">‹ Início</button>
+        <h2 class="text-base font-bold">Sabesp e Enel próximas</h2>
+        <button onclick="toggleTheme()" class="btn-secondary text-xs px-2.5 py-2">
+          <span class="theme-icon">☀️</span>
+        </button>
+      </div>
+
+      <div class="surface-card p-4 mb-4">
+        <p class="text-xs font-semibold text-muted mb-2">Buscar localização próxima</p>
+        <div class="flex gap-2">
+          <input id="location-query" type="text" placeholder="Ex.: Santana, Santo Amaro, Lapa, Centro..." class="input-field text-xs py-2.5" oninput="filterLocations()" />
+          <button onclick="requestUserLocation()" class="btn-action text-xs px-3.5 py-2.5 shrink-0">
+            <span>📍</span>
+            <span>GPS</span>
+          </button>
+        </div>
+        <p id="gps-status" class="text-[11px] text-muted mt-2">Exibindo unidades cadastradas da Sabesp e Enel em São Paulo.</p>
+      </div>
+
+      <div id="locations-list" class="space-y-3"></div>
+    </section>
+
+    <!-- TELA 8: PERFIL E TEMA -->
+    <section id="screen-profile" class="screen px-5 pt-6">
       <div class="flex items-center justify-between mb-5">
-        <button onclick="goTo('screen-home')" class="w-9 h-9 rounded-full bg-[#0D1B30] flex items-center justify-center text-slate-300">‹</button>
-        <h2 class="text-base font-bold text-white">Meu Perfil</h2>
-        <div class="w-9"></div>
+        <button onclick="goTo('screen-home')" class="btn-secondary text-xs px-3 py-2">‹ Início</button>
+        <h2 class="text-base font-bold">Perfil e configurações</h2>
+        <div class="w-16"></div>
       </div>
 
-      <div class="card-dark p-4 flex items-center gap-3.5 mb-5">
-        <div class="w-13 h-13 rounded-full bg-sky-600 text-white font-bold text-lg flex items-center justify-center">GB</div>
+      <div class="surface-card p-4 mb-4 space-y-2">
+        <p class="text-xs font-semibold text-muted">Dados informados</p>
+        <p id="profile-name-val" class="text-sm font-bold">Não informado</p>
+        <p id="profile-email-val" class="text-xs text-muted">Não informado</p>
+      </div>
+
+      <div class="surface-card p-4 mb-4 flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-bold text-white">Gabriel Batista</h3>
-          <p id="profile-email" class="text-xs text-slate-400">gabrielbatista@gmail.com</p>
+          <p class="text-sm font-bold">Aparência do aplicativo</p>
+          <p id="theme-status-text" class="text-xs text-muted">Tema Escuro ativo</p>
         </div>
+        <button onclick="toggleTheme()" class="btn-action text-xs px-4 py-2.5">
+          <span class="theme-icon">☀️</span>
+          <span class="theme-label">Alternar tema</span>
+        </button>
       </div>
 
-      <div class="card-dark divide-y divide-slate-800 mb-5 text-xs">
-        <div class="p-3.5 flex justify-between items-center">
-          <span class="text-slate-200">👤 Minhas informações</span>
-          <span class="text-slate-500">›</span>
-        </div>
-        <div class="p-3.5 flex justify-between items-center">
-          <span class="text-slate-200">📍 Endereços cadastrados</span>
-          <span class="text-slate-400">2 endereços ›</span>
-        </div>
-        <div class="p-3.5 flex justify-between items-center">
-          <span class="text-slate-200">🔔 Notificações</span>
-          <span class="text-emerald-400 font-semibold">Ativadas ›</span>
-        </div>
-        <div class="p-3.5 flex justify-between items-center">
-          <span class="text-slate-200">💳 Forma de pagamento</span>
-          <span class="text-slate-400">Carteira integrada ›</span>
-        </div>
-      </div>
-
-      <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Configurações & PWA</p>
-      <div class="card-dark divide-y divide-slate-800 mb-5 text-xs">
-        <div class="p-3.5 flex justify-between items-center">
-          <span class="text-slate-200">🌙 Tema escuro</span>
-          <span class="w-9 h-5 bg-sky-600 rounded-full relative inline-flex items-center px-0.5"><span class="w-4 h-4 bg-white rounded-full translate-x-4"></span></span>
-        </div>
-        <div class="p-3.5 flex justify-between items-center">
-          <span class="text-slate-200">ℹ️ Sobre o app</span>
-          <span class="text-slate-400">v1.0.0 PWA</span>
-        </div>
-      </div>
-
-      <button onclick="goTo('screen-login')" class="w-full py-3 rounded-xl bg-red-500/15 border border-red-500/35 text-red-400 font-semibold text-xs">
-        Sair da conta
+      <button onclick="clearAllUserData()" class="btn-secondary w-full text-xs text-red-500 border-red-500/30 py-3">
+        🗑️ Limpar todas as contas lançadas
       </button>
     </section>
 
-    <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
-    <nav id="bottom-nav" class="hidden fixed bottom-0 w-full max-w-[430px] bg-[#081222]/95 backdrop-blur-md border-t border-slate-800/90 px-4 py-2.5 justify-between items-center z-40">
-      <button onclick="goTo('screen-home')" data-nav="screen-home" class="nav-btn flex flex-col items-center gap-1 text-sky-400 text-[10px] font-semibold">
-        <span class="text-lg">🏠</span>
+    <!-- BARRA INFERIOR -->
+    <nav id="bottom-nav" class="bottom-bar hidden fixed bottom-0 w-full max-w-[430px] px-3 py-2.5 justify-around items-center z-40">
+      <button onclick="goTo('screen-home')" class="btn-secondary text-xs px-3 py-2">
+        <span>🏠</span>
         <span>Início</span>
       </button>
-      <button onclick="goTo('screen-details')" data-nav="screen-details" class="nav-btn flex flex-col items-center gap-1 text-slate-400 text-[10px]">
-        <span class="text-lg">📄</span>
+      <button onclick="openBillForm('agua')" class="btn-action text-xs px-4 py-2.5">
+        <span>➕</span>
+        <span>Nova conta</span>
+      </button>
+      <button onclick="goTo('screen-history')" class="btn-secondary text-xs px-3 py-2">
+        <span>📋</span>
         <span>Contas</span>
       </button>
-      <button onclick="openScanner()" class="flex flex-col items-center -mt-6">
-        <div class="w-13 h-13 rounded-full btn-primary flex items-center justify-center text-white text-xl border-4 border-[#07101E]">📷</div>
-        <span class="text-[10px] text-slate-300 mt-1">Escanear</span>
-      </button>
-      <button onclick="goTo('screen-history')" data-nav="screen-history" class="nav-btn flex flex-col items-center gap-1 text-slate-400 text-[10px]">
-        <span class="text-lg">🕒</span>
-        <span>Histórico</span>
-      </button>
-      <button onclick="goTo('screen-profile')" data-nav="screen-profile" class="nav-btn flex flex-col items-center gap-1 text-slate-400 text-[10px]">
-        <span class="text-lg">👤</span>
-        <span>Perfil</span>
+      <button onclick="goTo('screen-locations')" class="btn-secondary text-xs px-3 py-2">
+        <span>📍</span>
+        <span>Locais</span>
       </button>
     </nav>
 
-    <!-- TOAST NOTIFICAÇÃO -->
-    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-900/95 border border-sky-400/40 text-white text-xs px-4 py-2.5 rounded-full shadow-2xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 whitespace-nowrap"></div>
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-full shadow-xl opacity-0 pointer-events-none transition-opacity duration-300 z-50 whitespace-nowrap"></div>
   </div>
 
   <script>
     // =========================================================================
-    // 1. CONFIGURAÇÃO DO SUPABASE (COLE SUA URL E CHAVE ANON AQUI)
+    // CONEXÃO SUPABASE — COLE SUA URL E CHAVE ANON AQUI
     // =========================================================================
     const SUPABASE_URL = 'https://qszmtyvhrdbtxnpxnmpr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzem10eXZocmRidHhucHhubXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTU3Mjg5NDAsImV4cCI6MjExMTMwNDk0MH0.SvuyRhwwCSd_yYU2JkHF-qy4lFyiPv1TVq_nyJGdlqA';
 
     let supabaseClient = null;
-    const isSupabaseConfigured =
+    if (
       SUPABASE_URL.startsWith('https://') &&
       !SUPABASE_URL.includes('SEU-PROJETO') &&
-      SUPABASE_ANON_KEY !== 'SUA-CHAVE-ANON-PUBLICA-AQUI';
-
-    if (isSupabaseConfigured && window.supabase) {
+      SUPABASE_ANON_KEY !== 'SUA-CHAVE-ANON-PUBLICA-AQUI' &&
+      window.supabase
+    ) {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    // =========================================================================
-    // 2. REGISTRO DO SERVICE WORKER PARA PWABUILDER
-    // =========================================================================
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
       });
     }
 
-    // =========================================================================
-    // 3. ESTADO E DADOS INICIAIS (FALLBACK LOCAL + SINCRONIZAÇÃO SUPABASE)
-    // =========================================================================
-    let bills = [
-      { id: 'luz-latest', type: 'luz', company: 'Enel', amount: 256.78, due: '15/06/2024', usage: '250 kWh', ref: 'MAI/2024', status: 'Válida' },
-      { id: 'agua-latest', type: 'agua', company: 'Sabesp', amount: 120.45, due: '10/06/2024', usage: '10 m³', ref: 'MAI/2024', status: 'Válida' },
-      { id: 'luz-mai', type: 'luz', company: 'Enel', amount: 245.32, due: '15/05/2024', usage: '240 kWh', ref: 'ABR/2024', status: 'Paga' },
-      { id: 'agua-mai', type: 'agua', company: 'Sabesp', amount: 118.70, due: '10/05/2024', usage: '9,5 m³', ref: 'ABR/2024', status: 'Paga' }
+    // Sem dados pré-definidos: começa vazio
+    let userBills = [];
+    let selectedBillType = 'agua';
+    let selectedFileName = '';
+
+    const serviceLocations = [
+      {
+        provider: 'Sabesp',
+        type: 'agua',
+        name: 'Sabesp — Unidade de Negócio Norte',
+        address: 'Rua Conselheiro Saraiva, 519, São Paulo - SP',
+        hours: 'Atendimento presencial e serviços de água/esgoto',
+        mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sabesp+Rua+Conselheiro+Saraiva+519+Sao+Paulo+SP'
+      },
+      {
+        provider: 'Sabesp',
+        type: 'agua',
+        name: 'Sabesp — Poupatempo Canindé (Shopping D)',
+        address: 'Av. Cruzeiro do Sul, 1100, Canindé, São Paulo - SP',
+        hours: 'Atendimento em unidade Poupatempo',
+        mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sabesp+Shopping+D+Av+Cruzeiro+do+Sul+1100+Sao+Paulo+SP'
+      },
+      {
+        provider: 'Sabesp',
+        type: 'agua',
+        name: 'Sabesp — Agência Santo Amaro',
+        address: 'Rua Amador Bueno, 229, Santo Amaro, São Paulo - SP',
+        hours: 'Atendimento presencial ao cliente',
+        mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sabesp+Rua+Amador+Bueno+229+Santo+Amaro+Sao+Paulo+SP'
+      },
+      {
+        provider: 'Sabesp',
+        type: 'agua',
+        name: 'Sabesp — Loja Lapa',
+        address: 'Rua do Curtume, s/n, Lapa, São Paulo - SP',
+        hours: 'Atendimento presencial ao cliente',
+        mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sabesp+Rua+do+Curtume+Lapa+Sao+Paulo+SP'
+      },
+      {
+        provider: 'Enel',
+        type: 'luz',
+        name: 'Enel São Paulo — Loja Santana',
+        address: 'Rua Voluntários da Pátria, 1068, Santana, São Paulo - SP',
+        hours: 'Seg a Sex, 08:30 às 16:30',
+        mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Enel+Rua+Voluntarios+da+Patria+1068+Santana+Sao+Paulo+SP'
+      },
+      {
+        provider: 'Enel',
+        type: 'luz',
+        name: 'Enel São Paulo — Descomplica Pirituba',
+        address: 'Av. Paula Ferreira, 1708, Vila Pirituba, São Paulo - SP',
+        hours: 'Seg a Sex, 08:00 às 17:00',
+        mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Enel+Av+Paula+Ferreira+1708+Pirituba+Sao+Paulo+SP'
+      }
     ];
 
-    let currentScanType = 'agua';
-    let simulateAnomaly = false;
-    let cameraStream = null;
-    let lastScanned = null;
-
-    async function loadBillsFromDatabase() {
-      const badge = document.getElementById('db-badge');
-      if (supabaseClient) {
-        try {
-          const { data, error } = await supabaseClient
-            .from('contas')
-            .select('*')
-            .order('created_at', { ascending: false });
-          if (!error && data && data.length > 0) {
-            bills = data.map(row => ({
-              id: row.id,
-              type: row.tipo,
-              company: row.empresa,
-              amount: Number(row.valor),
-              due: row.vencimento,
-              usage: row.consumo,
-              ref: row.referencia,
-              status: row.status || 'Válida'
-            }));
-          }
-          badge.textContent = '● Supabase Ativo';
-        } catch (e) {
-          badge.textContent = '● Modo Local';
-        }
-      } else {
-        const saved = localStorage.getItem('leitor_contas_db');
-        if (saved) bills = JSON.parse(saved);
-        badge.textContent = '● Modo Demo Local';
-      }
-      updateDashboardSummary();
-      renderHistory('all');
+    function applyTheme(isLight) {
+      document.documentElement.classList.toggle('light-theme', isLight);
+      localStorage.setItem('leitor_contas_theme', isLight ? 'light' : 'dark');
+      document.querySelectorAll('.theme-icon').forEach(el => {
+        el.textContent = isLight ? '🌙' : '☀️';
+      });
+      document.querySelectorAll('.theme-label').forEach(el => {
+        el.textContent = isLight ? 'Tema Escuro' : 'Tema Claro';
+      });
+      const statusText = document.getElementById('theme-status-text');
+      if (statusText) statusText.textContent = isLight ? 'Tema Claro ativo' : 'Tema Escuro ativo';
     }
 
-    function updateDashboardSummary() {
-      const aguaList = bills.filter(b => b.type === 'agua');
-      const luzList = bills.filter(b => b.type === 'luz');
-      document.getElementById('count-agua').textContent = `${aguaList.length} contas`;
-      document.getElementById('count-luz').textContent = `${luzList.length} contas`;
-
-      const latestAgua = aguaList[0]?.amount || 120.45;
-      const latestLuz = luzList[0]?.amount || 256.78;
-      const total = latestAgua + latestLuz;
-
-      document.getElementById('home-agua-val').textContent = formatBRL(latestAgua);
-      document.getElementById('home-luz-val').textContent = formatBRL(latestLuz);
-      document.getElementById('home-total-month').textContent = formatBRL(total);
+    function toggleTheme() {
+      const isLight = !document.documentElement.classList.contains('light-theme');
+      applyTheme(isLight);
     }
 
-    function formatBRL(val) {
-      return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
-
-    // =========================================================================
-    // 4. NAVEGAÇÃO ENTRE TELAS
-    // =========================================================================
-    const screensWithNav = ['screen-home', 'screen-history', 'screen-charts', 'screen-locations', 'screen-profile'];
+    const navScreens = ['screen-home', 'screen-form', 'screen-explain', 'screen-history', 'screen-locations', 'screen-profile'];
 
     function goTo(screenId) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -843,7 +538,7 @@
       if (target) target.classList.add('active');
 
       const nav = document.getElementById('bottom-nav');
-      if (screensWithNav.includes(screenId)) {
+      if (navScreens.includes(screenId)) {
         nav.classList.remove('hidden');
         nav.classList.add('flex');
       } else {
@@ -851,258 +546,307 @@
         nav.classList.remove('flex');
       }
 
-      document.querySelectorAll('.nav-btn').forEach(btn => {
-        if (btn.dataset.nav === screenId) {
-          btn.classList.remove('text-slate-400');
-          btn.classList.add('text-sky-400', 'font-semibold');
-        } else {
-          btn.classList.add('text-slate-400');
-          btn.classList.remove('text-sky-400', 'font-semibold');
-        }
-      });
+      if (screenId === 'screen-history') renderHistory();
+      if (screenId === 'screen-locations') filterLocations();
       window.scrollTo(0, 0);
     }
 
-    // =========================================================================
-    // 5. LOGIN E AUTENTICAÇÃO
-    // =========================================================================
     async function handleLogin(e) {
       e.preventDefault();
-      const email = document.getElementById('login-email').value;
+      const name = document.getElementById('login-name').value.trim();
+      const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-pass').value;
+
       if (supabaseClient) {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) {
-          showToast('Entrando em modo local: ' + error.message);
-        }
+        await supabaseClient.auth.signInWithPassword({ email, password }).catch(() => {});
       }
-      document.getElementById('profile-email').textContent = email;
-      await loadBillsFromDatabase();
+
+      localStorage.setItem('leitor_contas_user', JSON.stringify({ name, email }));
+      updateUserHeader(name, email);
+      await loadUserBills();
       goTo('screen-home');
     }
 
-    async function handleRegister() {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-pass').value;
+    function updateUserHeader(name, email) {
+      document.getElementById('greeting-title').textContent = name ? `Olá, ${name}!` : 'Olá!';
+      document.getElementById('profile-name-val').textContent = name || 'Não informado';
+      document.getElementById('profile-email-val').textContent = email || 'Não informado';
+    }
+
+    async function loadUserBills() {
+      const pill = document.getElementById('db-status-pill');
       if (supabaseClient) {
-        const { error } = await supabaseClient.auth.signUp({ email, password });
-        if (error) return showToast('Erro ao cadastrar: ' + error.message);
-        showToast('Cadastro realizado! Verifique seu e-mail.');
-      } else {
-        showToast('Conta criada! Clique em Entrar.');
+        try {
+          const { data, error } = await supabaseClient.from('contas').select('*').order('created_at', { ascending: false });
+          if (!error && Array.isArray(data)) {
+            userBills = data.map(row => ({
+              id: row.id,
+              type: row.tipo,
+              company: row.empresa,
+              amount: Number(row.valor),
+              due: row.vencimento,
+              usage: row.consumo,
+              ref: row.referencia,
+              extra: row.observacoes || '',
+              code: row.codigo_barras || '',
+              fileName: row.arquivo_nome || ''
+            }));
+            pill.textContent = 'Supabase conectado';
+            updateHomeSummary();
+            return;
+          }
+        } catch (err) {}
       }
+
+      const localData = localStorage.getItem('leitor_contas_user_bills');
+      userBills = localData ? JSON.parse(localData) : [];
+      pill.textContent = supabaseClient ? 'Supabase conectado' : 'Aguardando Supabase';
+      updateHomeSummary();
     }
 
-    function loginDemo(provider) {
-      showToast(`Conectado com ${provider}`);
-      loadBillsFromDatabase();
-      goTo('screen-home');
+    function formatBRL(num) {
+      return Number(num || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
-    // =========================================================================
-    // 6. CÂMERA, SCANNER E ANÁLISE COM IA
-    // =========================================================================
-    async function openScanner() {
-      goTo('screen-scan');
-      setScanType(currentScanType);
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        const video = document.getElementById('camera-video');
-        video.srcObject = cameraStream;
-        video.classList.remove('hidden');
-      } catch (err) {
-        document.getElementById('camera-video').classList.add('hidden');
-      }
+    function updateHomeSummary() {
+      const aguaSum = userBills.filter(b => b.type === 'agua').reduce((acc, b) => acc + Number(b.amount || 0), 0);
+      const luzSum = userBills.filter(b => b.type === 'luz').reduce((acc, b) => acc + Number(b.amount || 0), 0);
+      const total = aguaSum + luzSum;
+
+      document.getElementById('home-total-count').textContent = `${userBills.length} ${userBills.length === 1 ? 'conta' : 'contas'}`;
+      document.getElementById('home-total-amount').textContent = formatBRL(total);
+      document.getElementById('home-agua-total').textContent = formatBRL(aguaSum);
+      document.getElementById('home-luz-total').textContent = formatBRL(luzSum);
     }
 
-    function stopCamera() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(t => t.stop());
-        cameraStream = null;
-      }
+    function openBillForm(type) {
+      selectBillType(type);
+      document.getElementById('bill-company').value = '';
+      document.getElementById('bill-amount').value = '';
+      document.getElementById('bill-due').value = '';
+      document.getElementById('bill-usage').value = '';
+      document.getElementById('bill-ref').value = '';
+      document.getElementById('bill-extra').value = '';
+      document.getElementById('bill-code').value = '';
+      document.getElementById('bill-file').value = '';
+      selectedFileName = '';
+      const fnEl = document.getElementById('bill-file-name');
+      fnEl.classList.add('hidden');
+      fnEl.textContent = '';
+      goTo('screen-form');
     }
 
-    function setScanType(type) {
-      currentScanType = type;
-      const btnAgua = document.getElementById('scan-type-agua');
-      const btnLuz = document.getElementById('scan-type-luz');
+    function selectBillType(type) {
+      selectedBillType = type;
+      const btnAgua = document.getElementById('btn-type-agua');
+      const btnLuz = document.getElementById('btn-type-luz');
       if (type === 'agua') {
-        btnAgua.className = 'py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 bg-sky-600 text-white shadow-lg';
-        btnLuz.className = 'py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 bg-[#0D1B30] text-slate-300 border border-slate-800';
-        document.getElementById('paper-provider').textContent = '💧 CONTA DE ÁGUA';
-        document.getElementById('paper-company').textContent = 'SABESP';
-        document.getElementById('paper-amount').textContent = 'R$ 120,45';
-        document.getElementById('paper-usage').textContent = '10 m³';
-        document.getElementById('paper-due').textContent = '10/06/2024';
+        btnAgua.className = 'btn-action text-xs py-3';
+        btnLuz.className = 'btn-secondary text-xs py-3';
       } else {
-        btnLuz.className = 'py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 bg-amber-500 text-slate-950 shadow-lg';
-        btnAgua.className = 'py-2.5 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 bg-[#0D1B30] text-slate-300 border border-slate-800';
-        document.getElementById('paper-provider').textContent = '⚡ CONTA DE LUZ';
-        document.getElementById('paper-company').textContent = 'ENEL';
-        document.getElementById('paper-amount').textContent = simulateAnomaly ? 'R$ 312,50' : 'R$ 256,78';
-        document.getElementById('paper-usage').textContent = simulateAnomaly ? '340 kWh' : '250 kWh';
-        document.getElementById('paper-due').textContent = '15/06/2024';
+        btnLuz.className = 'btn-action text-xs py-3';
+        btnAgua.className = 'btn-secondary text-xs py-3';
       }
     }
 
-    function toggleSimError() {
-      simulateAnomaly = !simulateAnomaly;
-      document.getElementById('btn-sim-mode').textContent = simulateAnomaly ? 'Modo: Alerta' : 'Modo: Normal';
-      if (simulateAnomaly) setScanType('luz');
+    function onFileSelected(e) {
+      const file = e.target.files?.[0];
+      selectedFileName = file ? file.name : '';
+      const fnEl = document.getElementById('bill-file-name');
+      if (selectedFileName) {
+        fnEl.textContent = `Arquivo anexado: ${selectedFileName}`;
+        fnEl.classList.remove('hidden');
+      } else {
+        fnEl.classList.add('hidden');
+      }
     }
 
-    function startAnalysis() {
-      stopCamera();
-      goTo('screen-analyzing');
-      let pct = 0;
-      const bar = document.getElementById('analysis-bar');
-      const txt = document.getElementById('analysis-percent');
+    async function handleBillSubmit(e) {
+      e.preventDefault();
+      const bill = {
+        id: 'bill-' + Date.now(),
+        type: selectedBillType,
+        company: document.getElementById('bill-company').value.trim(),
+        amount: parseFloat(document.getElementById('bill-amount').value || '0'),
+        due: document.getElementById('bill-due').value.trim(),
+        usage: document.getElementById('bill-usage').value.trim(),
+        ref: document.getElementById('bill-ref').value.trim(),
+        extra: document.getElementById('bill-extra').value.trim(),
+        code: document.getElementById('bill-code').value.trim(),
+        fileName: selectedFileName
+      };
 
-      const timer = setInterval(() => {
-        pct += 4;
-        if (pct > 100) pct = 100;
-        bar.style.width = pct + '%';
-        txt.textContent = pct + '%';
-
-        if (pct >= 25) markStepDone('step-2');
-        if (pct >= 55) markStepDone('step-3');
-        if (pct >= 85) markStepDone('step-4');
-
-        if (pct === 100) {
-          clearInterval(timer);
-          setTimeout(() => {
-            if (simulateAnomaly) {
-              lastScanned = { id: 'scan-' + Date.now(), type: 'luz', company: 'Enel', amount: 312.50, due: '15/06/2024', usage: '340 kWh', ref: 'JUN/2024', status: 'Em revisão' };
-              goTo('screen-result-alert');
-            } else {
-              const isAgua = currentScanType === 'agua';
-              lastScanned = {
-                id: 'scan-' + Date.now(),
-                type: isAgua ? 'agua' : 'luz',
-                company: isAgua ? 'Sabesp' : 'Enel',
-                amount: isAgua ? 120.45 : 256.78,
-                due: isAgua ? '10/06/2024' : '15/06/2024',
-                usage: isAgua ? '10 m³' : '250 kWh',
-                ref: 'JUN/2024',
-                status: 'Válida'
-              };
-              document.getElementById('res-ok-title').textContent = isAgua ? '💧 CONTA DE ÁGUA' : '⚡ CONTA DE LUZ';
-              document.getElementById('res-ok-company').textContent = lastScanned.company.toLowerCase();
-              document.getElementById('res-ok-amount').textContent = formatBRL(lastScanned.amount);
-              document.getElementById('res-ok-due').textContent = lastScanned.due;
-              document.getElementById('res-ok-usage').textContent = lastScanned.usage;
-              document.getElementById('res-ok-ref').textContent = lastScanned.ref;
-              goTo('screen-result-ok');
-            }
-          }, 300);
-        }
-      }, 70);
-    }
-
-    function markStepDone(id) {
-      const el = document.getElementById(id);
-      el.classList.remove('text-slate-400');
-      el.classList.add('text-slate-200');
-      const icon = el.querySelector('span');
-      icon.className = 'w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs';
-      icon.textContent = '✓';
-    }
-
-    async function saveScannedBill(isAlert) {
-      if (!lastScanned) return;
-      bills.unshift(lastScanned);
-      localStorage.setItem('leitor_contas_db', JSON.stringify(bills));
+      userBills.unshift(bill);
+      localStorage.setItem('leitor_contas_user_bills', JSON.stringify(userBills));
 
       if (supabaseClient) {
         await supabaseClient.from('contas').insert([{
-          tipo: lastScanned.type,
-          empresa: lastScanned.company,
-          valor: lastScanned.amount,
-          vencimento: lastScanned.due,
-          consumo: lastScanned.usage,
-          referencia: lastScanned.ref,
-          status: lastScanned.status
-        }]);
+          tipo: bill.type,
+          empresa: bill.company,
+          valor: bill.amount,
+          vencimento: bill.due,
+          consumo: bill.usage,
+          referencia: bill.ref,
+          observacoes: bill.extra,
+          codigo_barras: bill.code,
+          arquivo_nome: bill.fileName
+        }]).catch(() => {});
       }
 
-      updateDashboardSummary();
-      renderHistory('all');
-      showToast(isAlert ? 'Conta salva com alerta de revisão!' : 'Conta salva no banco de dados!');
-      goTo('screen-home');
+      updateHomeSummary();
+      openExplanation(bill.id);
     }
 
-    // =========================================================================
-    // 7. DETALHES, HISTÓRICO E GRÁFICOS
-    // =========================================================================
-    function openBillDetail(id) {
-      const bill = id === 'scanned' ? lastScanned : bills.find(b => b.id === id) || bills[0];
+    function openExplanation(billId) {
+      const bill = userBills.find(b => b.id === billId);
       if (!bill) return;
+
       const isAgua = bill.type === 'agua';
-      document.getElementById('det-title').textContent = isAgua ? '💧 CONTA DE ÁGUA' : '⚡ CONTA DE LUZ';
-      document.getElementById('det-title').className = `text-xs font-bold ${isAgua ? 'text-sky-400' : 'text-amber-400'}`;
-      document.getElementById('det-company').textContent = bill.company.toLowerCase();
-      document.getElementById('det-amount').textContent = formatBRL(bill.amount);
-      document.getElementById('det-due').textContent = bill.due;
-      document.getElementById('det-usage').textContent = bill.usage;
-      document.getElementById('det-ref').textContent = bill.ref;
-      goTo('screen-details');
+      const usageMeaning = isAgua
+        ? 'Indica o volume de água (geralmente em metros cúbicos, m³) registrado no hidrômetro no período cobrado; quanto maior o volume, maior a cobrança de água e esgoto.'
+        : 'Indica a quantidade de energia elétrica consumida (geralmente em quilowatt-hora, kWh) no medidor durante o período da fatura.';
+
+      const items = [
+        {
+          label: 'Tipo e Concessionária',
+          value: `${isAgua ? 'Água' : 'Luz'} — ${bill.company}`,
+          explanation: 'Identifica o serviço público prestado e a empresa responsável pela medição, emissão da fatura e atendimento ao cliente.'
+        },
+        {
+          label: 'Valor Total a Pagar',
+          value: formatBRL(bill.amount),
+          explanation: 'Soma final cobrada na fatura considerando o consumo medido, tarifas aplicadas e tributos/encargos vigentes.'
+        },
+        {
+          label: 'Data de Vencimento',
+          value: bill.due,
+          explanation: 'Prazo limite para pagamento sem acréscimo de multa, juros de mora ou atualização monetária.'
+        },
+        {
+          label: 'Consumo Medido',
+          value: bill.usage,
+          explanation: usageMeaning
+        },
+        {
+          label: 'Mês de Referência',
+          value: bill.ref,
+          explanation: 'Período/competência a que a cobrança se refere, que pode diferir levemente da data exata em que o medidor foi lido.'
+        }
+      ];
+
+      if (bill.extra) {
+        items.push({
+          label: 'Tarifas / Taxas Informadas',
+          value: bill.extra,
+          explanation: 'Itens adicionais presentes na fatura (como coleta/tratamento de esgoto, contribuição de iluminação pública ou encargos específicos).'
+        });
+      }
+
+      if (bill.code) {
+        items.push({
+          label: 'Código / Linha Digitável',
+          value: bill.code,
+          explanation: 'Sequência numérica usada para identificar a fatura no pagamento bancário ou aplicativo do banco.'
+        });
+      }
+
+      if (bill.fileName) {
+        items.push({
+          label: 'Arquivo Anexado',
+          value: bill.fileName,
+          explanation: 'Documento selecionado por você para conferência visual dos campos informados.'
+        });
+      }
+
+      const container = document.getElementById('explain-container');
+      container.innerHTML = items.map(item => `
+        <div class="surface-card p-4">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-sky-500">${item.label}</p>
+          <p class="text-base font-extrabold mt-0.5">${item.value}</p>
+          <p class="text-xs text-muted mt-2 leading-relaxed">${item.explanation}</p>
+        </div>
+      `).join('');
+
+      goTo('screen-explain');
     }
 
-    function filterHistory(type) {
-      goTo('screen-history');
-      renderHistory(type);
-    }
-
-    function renderHistory(filter) {
-      ['all', 'agua', 'luz'].forEach(t => {
-        const btn = document.getElementById(`hist-tab-${t}`);
-        btn.className = t === filter
-          ? 'py-2 rounded-xl text-xs font-semibold bg-sky-600 text-white'
-          : 'py-2 rounded-xl text-xs font-semibold bg-[#0D1B30] text-slate-300';
-      });
-
-      const list = document.getElementById('history-list');
-      const filtered = filter === 'all' ? bills : bills.filter(b => b.type === filter);
-      list.innerHTML = filtered.map(b => {
-        const isAgua = b.type === 'agua';
-        return `
-          <div onclick="openBillDetail('${b.id}')" class="card-dark p-3.5 flex items-center justify-between cursor-pointer hover:border-sky-400/40">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl ${isAgua ? 'bg-sky-500/20 text-sky-400' : 'bg-amber-500/20 text-amber-400'} flex items-center justify-center text-lg">
-                ${isAgua ? '💧' : '⚡'}
-              </div>
-              <div>
-                <p class="text-xs font-bold text-white">Conta de ${isAgua ? 'Água' : 'Luz'} • ${b.company}</p>
-                <p class="text-[11px] text-slate-400">Venc. ${b.due} • ${b.usage}</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="text-sm font-bold text-white">${formatBRL(b.amount)}</p>
-              <span class="text-[10px] text-emerald-400">● ${b.status}</span>
-            </div>
+    function renderHistory() {
+      const container = document.getElementById('history-container');
+      if (!userBills.length) {
+        container.innerHTML = `
+          <div class="surface-card p-6 text-center space-y-3">
+            <p class="text-sm font-bold">Nenhuma conta cadastrada ainda</p>
+            <p class="text-xs text-muted">Toque em "+ Nova" para inserir os dados da sua conta e ver a explicação de cada item.</p>
           </div>
         `;
-      }).join('');
+        return;
+      }
+
+      container.innerHTML = userBills.map(b => `
+        <div class="surface-card p-4 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-bold text-sky-500">${b.type === 'agua' ? '💧 ÁGUA' : '⚡ LUZ'} • ${b.company}</p>
+            <p class="text-base font-extrabold mt-0.5">${formatBRL(b.amount)}</p>
+            <p class="text-[11px] text-muted">Venc.: ${b.due} • Consumo: ${b.usage} • Ref.: ${b.ref}</p>
+          </div>
+          <button onclick="openExplanation('${b.id}')" class="btn-secondary text-xs px-3 py-2 shrink-0">
+            Explicar
+          </button>
+        </div>
+      `).join('');
     }
 
-    function switchChart(type) {
-      const isAgua = type === 'agua';
-      document.getElementById('chart-btn-agua').className = isAgua
-        ? 'py-2.5 rounded-xl text-xs font-semibold bg-sky-600 text-white'
-        : 'py-2.5 rounded-xl text-xs font-semibold bg-[#0D1B30] text-slate-300';
-      document.getElementById('chart-btn-luz').className = !isAgua
-        ? 'py-2.5 rounded-xl text-xs font-semibold bg-amber-500 text-slate-950'
-        : 'py-2.5 rounded-xl text-xs font-semibold bg-[#0D1B30] text-slate-300';
+    function filterLocations() {
+      const term = (document.getElementById('location-query')?.value || '').toLowerCase().trim();
+      const filtered = serviceLocations.filter(loc =>
+        !term ||
+        loc.name.toLowerCase().includes(term) ||
+        loc.address.toLowerCase().includes(term) ||
+        loc.provider.toLowerCase().includes(term)
+      );
 
-      document.getElementById('chart-title').textContent = isAgua ? 'Consumo de Água (m³)' : 'Consumo de Luz (kWh)';
-      document.getElementById('chart-avg').textContent = isAgua ? '9,6 m³' : '237 kWh';
-      document.getElementById('chart-max').textContent = isAgua ? '11 m³' : '265 kWh';
+      const list = document.getElementById('locations-list');
+      list.innerHTML = filtered.map(loc => `
+        <div class="surface-card p-4">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-extrabold ${loc.type === 'agua' ? 'text-sky-500' : 'text-amber-500'}">
+              ${loc.type === 'agua' ? '💧' : '⚡'} ${loc.provider}
+            </span>
+          </div>
+          <p class="text-sm font-bold">${loc.name}</p>
+          <p class="text-xs text-muted mt-0.5">${loc.address}</p>
+          <p class="text-[11px] text-muted mt-1">${loc.hours}</p>
+          <a href="${loc.mapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-secondary w-full text-xs mt-3 py-2.5">
+            🗺️ Abrir no Google Maps
+          </a>
+        </div>
+      `).join('');
     }
 
-    function copyPixAndPay() {
-      const code = '836400000012045004810094827163540';
-      if (navigator.clipboard) navigator.clipboard.writeText(code).catch(() => {});
-      showToast('Código de barras / PIX copiado!');
+    function requestUserLocation() {
+      const statusEl = document.getElementById('gps-status');
+      if (!navigator.geolocation) {
+        statusEl.textContent = 'Geolocalização não suportada neste navegador.';
+        return;
+      }
+      statusEl.textContent = 'Obtendo sua localização...';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          statusEl.textContent = `Sua localização aproximada: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}. Use o botão "Abrir no Google Maps" em cada unidade para traçar a rota até você.`;
+        },
+        () => {
+          statusEl.textContent = 'Permissão de localização não concedida. Você pode filtrar por bairro acima ou abrir no Google Maps.';
+        }
+      );
+    }
+
+    function clearAllUserData() {
+      userBills = [];
+      localStorage.removeItem('leitor_contas_user_bills');
+      updateHomeSummary();
+      renderHistory();
+      showToast('Todas as contas lançadas foram removidas.');
     }
 
     function showToast(msg) {
@@ -1113,8 +857,22 @@
       setTimeout(() => {
         t.classList.remove('opacity-100');
         t.classList.add('opacity-0');
-      }, 2800);
+      }, 2600);
     }
+
+    // Inicialização limpa, respeitando apenas tema salvo e dados inseridos pelo usuário
+    (function init() {
+      const savedTheme = localStorage.getItem('leitor_contas_theme');
+      applyTheme(savedTheme === 'light');
+
+      const savedUser = localStorage.getItem('leitor_contas_user');
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        updateUserHeader(parsed.name, parsed.email);
+      }
+      loadUserBills();
+      filterLocations();
+    })();
   </script>
 </body>
 </html>
